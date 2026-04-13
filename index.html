@@ -234,35 +234,69 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh
   .sidebar{position:fixed;top:0;left:0;bottom:0;z-index:60;transform:translateX(-100%);transition:transform .25s;width:280px;padding-top:60px;}
   .sidebar.open{transform:translateX(0);}
   .sidebar-overlay.open{display:block;}
-  .header{padding:8px 12px;gap:6px;flex-wrap:wrap;}
-  .header h1{font-size:14px;white-space:nowrap;}
-  .header-row1{display:flex;align-items:center;gap:6px;width:100%;}
-  .date-nav{margin-left:auto;}
-  .date-nav button{padding:3px 8px;font-size:11px;}
+
+  /* Header: single tight row */
+  .header{padding:8px 12px;gap:4px;}
+  .header h1{font-size:13px;white-space:nowrap;}
+  .user-info{gap:4px;}
+  .user-info .user-email{max-width:90px;font-size:10px;}
+  .user-info .logout-btn{font-size:9px;padding:1px 6px;}
+  .date-nav{gap:4px;}
+  .date-nav button{padding:3px 7px;font-size:11px;}
   .date-nav .today-btn{padding:3px 10px;}
   .date-nav input[type="date"]{display:none;}
   .header-actions{display:none;}
-  #syncStatus{position:absolute;right:12px;top:10px;}
+  #syncStatus{margin-left:-2px;}
   .sync-label{display:none;}
-  .content{padding:12px 14px;}
-  .hero{padding:16px 14px;}
-  .hero-row1{flex-direction:column;gap:10px;}
-  .hero-tiers{gap:8px;width:100%;}
-  .hero-tier{min-width:0;flex:1;padding:10px 8px;}
+
+  .content{padding:10px 12px;}
+
+  /* Hero card: compact vertical layout */
+  .hero{padding:14px 12px;}
+  .hero-row1{flex-direction:column-reverse;gap:8px;}
+  .hero-tiers{gap:6px;width:100%;}
+  .hero-tier{min-width:0;flex:1;padding:8px 6px;border-radius:8px;}
   .hero-tier .ht-rem{font-size:20px;}
-  .hero-tier .ht-label{font-size:10px;}
-  .hero-tier .ht-total{font-size:11px;}
-  .hero-meta{font-size:12px;margin-top:4px;}
-  .hero-date{font-size:13px;margin-bottom:6px;}
-  .hero-controls{gap:6px;flex-wrap:wrap;}
-  .hero-controls label{font-size:11px;}
-  .hero-controls input[type="time"]{font-size:12px;padding:4px 6px;width:90px;}
-  .break-add-row{flex-wrap:wrap;}
-  .quick-breaks{margin-left:0;margin-top:4px;}
-  .daily-summary{padding:10px 14px;gap:8px;font-size:12px;}
-  .task-card{padding:14px;}
-  .task-line{font-size:15px;padding:5px 2px;}
-  .task-toolbar{flex-wrap:wrap;gap:4px;}
+  .hero-tier .ht-label{font-size:9px;margin-bottom:4px;}
+  .hero-tier .ht-total{font-size:10px;margin-top:2px;}
+  .hero-date{font-size:12px;margin-bottom:2px;text-align:center;}
+  .hero-status{text-align:center;font-size:12px;}
+  .hero-meta{font-size:12px;text-align:center;margin-top:2px;}
+
+  /* Time controls: clean grid */
+  .hero-controls{display:grid;grid-template-columns:auto 1fr auto auto 1fr auto;gap:6px 6px;align-items:center;margin-top:10px;padding-top:10px;}
+  .hero-controls label{font-size:11px;text-align:right;}
+  .hero-controls input[type="time"]{font-size:13px;padding:6px 8px;width:100%;}
+  .hero-controls .btn{padding:6px 10px;}
+  .hero-controls span[style]{display:none;}
+
+  /* Breaks: compact */
+  .breaks-row{margin-top:10px;padding-top:10px;}
+  .breaks-label{font-size:11px;margin-bottom:6px;}
+  .break-list{gap:3px;margin-bottom:6px;}
+  .break-item{padding:4px 8px;font-size:12px;}
+  .break-add-row{flex-wrap:wrap;gap:4px;}
+  .break-add-row input{padding:5px 6px;font-size:12px;}
+  .break-add-row input[name="break-name"]{width:70px;}
+  .break-add-row input[name="break-val"]{width:44px;}
+  .quick-breaks{margin-left:0;margin-top:4px;gap:3px;}
+  .quick-breaks button{font-size:10px;padding:3px 6px;}
+
+  /* Summary */
+  .daily-summary{padding:8px 12px;gap:6px;font-size:11px;}
+  .summary-sep{font-size:12px;}
+  .progress-bar-wrap{min-width:80px;}
+
+  /* Tasks */
+  .task-card{padding:12px;}
+  .task-card-header{margin-bottom:8px;}
+  .task-card-header h2{font-size:14px;}
+  .task-line{font-size:14px;padding:4px 2px;line-height:1.7;gap:5px;}
+  .tl-num{font-size:14px;min-width:20px;}
+  .tl-check{width:16px;height:16px;margin-top:5px;}
+  .tl-est{font-size:11px;padding:1px 6px;}
+  .tl-del{font-size:16px;padding:1px 4px;}
+  .task-toolbar{gap:4px;}
   .task-toolbar button{font-size:10px;padding:4px 8px;}
   .task-help{display:none;}
 }
