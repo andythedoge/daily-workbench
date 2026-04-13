@@ -191,6 +191,30 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh
 ::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
 ::-webkit-scrollbar-thumb:hover{background:var(--text3);}
 
+/* Auth screen */
+.auth-screen{position:fixed;top:0;left:0;right:0;bottom:0;background:var(--bg);z-index:200;display:flex;align-items:center;justify-content:center;}
+.auth-screen.hidden{display:none;}
+.auth-box{background:var(--card);border-radius:16px;box-shadow:var(--shadow2);padding:36px;max-width:380px;width:90%;text-align:center;}
+.auth-box h2{font-size:22px;font-weight:700;margin-bottom:4px;}
+.auth-box .auth-sub{font-size:13px;color:var(--text3);margin-bottom:24px;}
+.auth-box input{width:100%;border:1px solid var(--border);border-radius:8px;padding:10px 14px;font-size:14px;font-family:var(--font);margin-bottom:12px;}
+.auth-box input:focus{outline:none;border-color:var(--accent);}
+.auth-box .auth-btn{width:100%;padding:10px;border-radius:8px;border:none;cursor:pointer;font-size:14px;font-family:var(--font);font-weight:600;transition:all .15s;}
+.auth-box .auth-btn.primary{background:var(--accent);color:white;margin-bottom:10px;}
+.auth-box .auth-btn.primary:hover{opacity:.9;}
+.auth-box .auth-toggle{font-size:13px;color:var(--text3);margin-top:12px;}
+.auth-box .auth-toggle a{color:var(--accent);cursor:pointer;text-decoration:none;}
+.auth-box .auth-toggle a:hover{text-decoration:underline;}
+.auth-box .auth-error{font-size:12px;color:var(--red);margin-bottom:10px;min-height:16px;}
+.auth-box .auth-skip{font-size:12px;color:var(--text3);margin-top:16px;cursor:pointer;}
+.auth-box .auth-skip:hover{color:var(--accent);}
+
+/* User info in header */
+.user-info{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text2);}
+.user-info .user-email{max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.user-info .logout-btn{background:none;border:1px solid var(--border);border-radius:4px;padding:2px 8px;cursor:pointer;font-size:10px;color:var(--text3);}
+.user-info .logout-btn:hover{color:var(--red);border-color:var(--red);}
+
 /* Sync indicator */
 .sync-dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:4px;vertical-align:middle;}
 .sync-dot.synced{background:var(--green);}
@@ -210,40 +234,66 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh
   .sidebar{position:fixed;top:0;left:0;bottom:0;z-index:60;transform:translateX(-100%);transition:transform .25s;width:280px;padding-top:60px;}
   .sidebar.open{transform:translateX(0);}
   .sidebar-overlay.open{display:block;}
-  .header{padding:8px 14px;gap:4px;}
-  .header h1{font-size:14px;}
-  .date-nav button{padding:4px 8px;font-size:11px;}
-  .date-nav input[type="date"]{font-size:11px;padding:3px 6px;}
-  .header-actions button{padding:3px 8px;font-size:10px;}
+  .header{padding:8px 12px;gap:6px;flex-wrap:wrap;}
+  .header h1{font-size:14px;white-space:nowrap;}
+  .header-row1{display:flex;align-items:center;gap:6px;width:100%;}
+  .date-nav{margin-left:auto;}
+  .date-nav button{padding:3px 8px;font-size:11px;}
+  .date-nav .today-btn{padding:3px 10px;}
+  .date-nav input[type="date"]{display:none;}
+  .header-actions{display:none;}
+  #syncStatus{position:absolute;right:12px;top:10px;}
+  .sync-label{display:none;}
   .content{padding:12px 14px;}
   .hero{padding:16px 14px;}
-  .hero-row1{flex-direction:column;gap:12px;}
-  .hero-tiers{flex-wrap:wrap;gap:8px;}
-  .hero-tier{min-width:0;flex:1;padding:10px 12px;}
-  .hero-tier .ht-rem{font-size:22px;}
-  .hero-controls{gap:6px;}
-  .hero-controls input[type="time"]{font-size:12px;padding:4px 6px;}
+  .hero-row1{flex-direction:column;gap:10px;}
+  .hero-tiers{gap:8px;width:100%;}
+  .hero-tier{min-width:0;flex:1;padding:10px 8px;}
+  .hero-tier .ht-rem{font-size:20px;}
+  .hero-tier .ht-label{font-size:10px;}
+  .hero-tier .ht-total{font-size:11px;}
+  .hero-meta{font-size:12px;margin-top:4px;}
+  .hero-date{font-size:13px;margin-bottom:6px;}
+  .hero-controls{gap:6px;flex-wrap:wrap;}
+  .hero-controls label{font-size:11px;}
+  .hero-controls input[type="time"]{font-size:12px;padding:4px 6px;width:90px;}
   .break-add-row{flex-wrap:wrap;}
   .quick-breaks{margin-left:0;margin-top:4px;}
-  .daily-summary{padding:10px 14px;gap:10px;}
+  .daily-summary{padding:10px 14px;gap:8px;font-size:12px;}
   .task-card{padding:14px;}
   .task-line{font-size:15px;padding:5px 2px;}
   .task-toolbar{flex-wrap:wrap;gap:4px;}
+  .task-toolbar button{font-size:10px;padding:4px 8px;}
   .task-help{display:none;}
-}
-@media(max-width:480px){
-  .hero-tiers{flex-direction:column;}
-  .hero-tier{flex:auto;}
-  .header-actions{display:none;}
 }
 </style>
 </head>
 <body>
 
+<!-- Auth Screen -->
+<div class="auth-screen" id="authScreen">
+  <div class="auth-box">
+    <h2>Daily Workbench</h2>
+    <p class="auth-sub">Sign in to sync across devices</p>
+    <div class="auth-error" id="authError"></div>
+    <input type="email" id="authEmail" placeholder="Email">
+    <input type="password" id="authPass" placeholder="Password" onkeydown="if(event.key==='Enter')authAction()">
+    <button class="auth-btn primary" onclick="authAction()" id="authBtn">Sign In</button>
+    <div class="auth-toggle" id="authToggle">
+      No account? <a onclick="toggleAuthMode()">Sign Up</a>
+    </div>
+    <div class="auth-skip" onclick="skipAuth()">Skip, use offline only</div>
+  </div>
+</div>
+
 <div class="header">
   <button class="hamburger" onclick="app.toggleSidebar()">&#9776;</button>
   <h1>Daily Workbench</h1>
   <span id="syncStatus"></span>
+  <div class="user-info" id="userInfo" style="display:none">
+    <span class="user-email" id="userEmail"></span>
+    <button class="logout-btn" onclick="doLogout()">Logout</button>
+  </div>
   <div class="date-nav">
     <button onclick="app.prevDay()">&#8592;</button>
     <button class="today-btn" onclick="app.goToday()">Today</button>
@@ -351,54 +401,123 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh
   </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script>
 // === Supabase Config ===
-const SUPABASE_URL = 'https://bpnk6zwegtmyukest.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_XpAfjDemFyv49jCDZ9fmew_sZLOH00W';
-let supabase = null;
+const SUPABASE_URL = 'https://drvprbkzwgtmyukesstv.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRydnByYmt6d2d0bXl1a2Vzc3R2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYwMDQ2NjksImV4cCI6MjA5MTU4MDY2OX0.-HaqEOOIqlGOZxT_TsU4mp0j1-O5GzOP6o51xDy_HJY';
+let sb = null;
+let _supabaseError = '';
+try {
+  const _lib = window.supabase;
+  if(!_lib || !_lib.createClient) throw new Error('SDK not loaded');
+  sb = _lib.createClient(SUPABASE_URL, SUPABASE_KEY);
+  console.log('Supabase connected OK');
+} catch(e) {
+  _supabaseError = e.message || String(e);
+  console.warn('Supabase init failed:', e);
+}
 
-// Load Supabase SDK async - won't block the app
-(function loadSupabase(){
-  const s=document.createElement('script');
-  s.src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
-  s.onload=()=>{
-    try{
-      supabase=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
-      sync.setStatus('synced');
-      // Push all existing localStorage data to cloud
-      sync.pushAll();
-    }catch(e){console.warn('Supabase init failed:',e);sync.setStatus('offline');}
-  };
-  s.onerror=()=>{console.warn('Supabase CDN failed, offline mode.');sync.setStatus('offline');};
-  document.head.appendChild(s);
-})();
+// === Auth ===
+let currentUser = null;
+let authMode = 'signin'; // 'signin' or 'signup'
+
+function toggleAuthMode(){
+  authMode = authMode==='signin'?'signup':'signin';
+  document.getElementById('authBtn').textContent = authMode==='signin'?'Sign In':'Sign Up';
+  document.getElementById('authToggle').innerHTML = authMode==='signin'
+    ? 'No account? <a onclick="toggleAuthMode()">Sign Up</a>'
+    : 'Have an account? <a onclick="toggleAuthMode()">Sign In</a>';
+  document.getElementById('authError').textContent='';
+}
+
+async function authAction(){
+  const email=document.getElementById('authEmail').value.trim();
+  const pass=document.getElementById('authPass').value;
+  const errEl=document.getElementById('authError');
+  if(!email||!pass){errEl.textContent='Please enter email and password';errEl.style.color='var(--red)';return;}
+  if(!sb){errEl.textContent='Cloud not connected ('+(_supabaseError||'SDK not loaded')+')';errEl.style.color='var(--red)';return;}
+  errEl.textContent='';
+  const btn=document.getElementById('authBtn');
+  btn.textContent='Loading...';btn.disabled=true;
+  try{
+    let result;
+    if(authMode==='signup'){
+      result=await sb.auth.signUp({email,password:pass});
+      if(result.error){errEl.textContent=result.error.message;errEl.style.color='var(--red)';btn.textContent='Sign Up';btn.disabled=false;return;}
+      // Check if email confirmation required
+      if(result.data.user && !result.data.session){
+        errEl.innerHTML='Account created! Check your email to confirm, then Sign In.';
+        errEl.style.color='var(--green)';
+        authMode='signin';btn.textContent='Sign In';btn.disabled=false;
+        document.getElementById('authToggle').innerHTML='No account? <a onclick="toggleAuthMode()">Sign Up</a>';
+        return;
+      }
+      // Auto-confirmed (if email confirm disabled)
+      currentUser=result.data.user;
+      onAuthSuccess();
+    } else {
+      result=await sb.auth.signInWithPassword({email,password:pass});
+      if(result.error){errEl.textContent=result.error.message;errEl.style.color='var(--red)';btn.textContent='Sign In';btn.disabled=false;return;}
+      currentUser=result.data.user;
+      onAuthSuccess();
+    }
+  }catch(e){
+    errEl.textContent='Error: '+e.message;errEl.style.color='var(--red)';
+    btn.textContent=authMode==='signin'?'Sign In':'Sign Up';btn.disabled=false;
+  }
+}
+
+function skipAuth(){
+  document.getElementById('authScreen').classList.add('hidden');
+  sync.setStatus('offline');
+  app.render();
+}
+
+async function doLogout(){
+  if(sb) await sb.auth.signOut();
+  currentUser=null;
+  document.getElementById('userInfo').style.display='none';
+  document.getElementById('authScreen').classList.remove('hidden');
+  sync.setStatus('offline');
+}
+
+function onAuthSuccess(){
+  document.getElementById('authScreen').classList.add('hidden');
+  document.getElementById('userInfo').style.display='flex';
+  document.getElementById('userEmail').textContent=currentUser.email;
+  sync.setStatus('synced');
+  // Pull cloud data for today
+  sync.pullDay(app.currentDate).then(()=>app.render());
+}
 
 class SyncManager {
   constructor(){ this._queue={}; this._timer=null; }
 
   async load(date){
-    if(!supabase) return null;
+    if(!sb||!currentUser) return null;
     try {
-      const {data,error}=await supabase.from('workbench_days').select('data').eq('id',date).single();
+      const {data,error}=await sb.from('workbench_days').select('data').eq('id',date).eq('user_id',currentUser.id).single();
       if(error||!data) return null;
       return data.data;
     } catch(e){ return null; }
   }
 
   queueSave(date, dayData){
+    if(!currentUser) return;
     this._queue[date]=dayData;
     clearTimeout(this._timer);
     this._timer=setTimeout(()=>this.flush(),2000);
   }
 
   async flush(){
-    if(!supabase) return;
+    if(!sb||!currentUser) return;
     const entries=Object.entries(this._queue);
     this._queue={};
     this.setStatus('syncing');
     try {
       for(const [id,data] of entries){
-        await supabase.from('workbench_days').upsert({id, data, updated_at:new Date().toISOString()},{onConflict:'id'});
+        await sb.from('workbench_days').upsert({id, user_id:currentUser.id, data, updated_at:new Date().toISOString()},{onConflict:'id,user_id'});
       }
       this.setStatus('synced');
     } catch(e){
@@ -408,7 +527,8 @@ class SyncManager {
   }
 
   async pushAll(){
-    if(!supabase) return;
+    if(!sb||!currentUser) return;
+    this.setStatus('syncing');
     const dates=[];
     for(let i=0;i<localStorage.length;i++){
       const k=localStorage.key(i);
@@ -419,10 +539,16 @@ class SyncManager {
         const raw=localStorage.getItem('workbench-'+date);
         if(raw){
           const data=JSON.parse(raw);
-          await supabase.from('workbench_days').upsert({id:date,data,updated_at:new Date().toISOString()},{onConflict:'id'});
+          await sb.from('workbench_days').upsert({id:date,user_id:currentUser.id,data,updated_at:new Date().toISOString()},{onConflict:'id,user_id'});
         }
       }catch(e){console.warn('Push failed for',date,e);}
     }
+    this.setStatus('synced');
+  }
+
+  async pullDay(date){
+    const cloud=await this.load(date);
+    if(cloud) localStorage.setItem('workbench-'+date, JSON.stringify(cloud));
   }
 
   setStatus(s){
@@ -1240,6 +1366,19 @@ function initSampleData(){
 }
 initSampleData();
 const app=new WorkbenchApp();
+
+// Check existing session on load
+(async()=>{
+  if(!sb) return;
+  try{
+    const {data:{session}}=await sb.auth.getSession();
+    if(session&&session.user){
+      currentUser=session.user;
+      onAuthSuccess();
+      sync.pushAll();
+    }
+  }catch(e){console.warn('Session check failed:',e);}
+})();
 </script>
 </body>
 </html>
