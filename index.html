@@ -404,12 +404,14 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script>
 // === Supabase Config ===
-const SUPABASE_URL = 'https://drvprbkzwgtmyukesst.supabase.co';
+const SUPABASE_URL = 'https://drvprbkzwgtmyukesstv.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRydnByYmt6d2d0bXl1a2Vzc3R2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYwMDQ2NjksImV4cCI6MjA5MTU4MDY2OX0.-HaqEOOIqlGOZxT_TsU4mp0j1-O5GzOP6o51xDy_HJY';
-let supabase = null;
+let sb = null;
 let _supabaseError = '';
 try {
-  supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  const _lib = window.supabase;
+  if(!_lib || !_lib.createClient) throw new Error('SDK not loaded');
+  sb = _lib.createClient(SUPABASE_URL, SUPABASE_KEY);
   console.log('Supabase connected OK');
 } catch(e) {
   _supabaseError = e.message || String(e);
@@ -434,14 +436,14 @@ async function authAction(){
   const pass=document.getElementById('authPass').value;
   const errEl=document.getElementById('authError');
   if(!email||!pass){errEl.textContent='Please enter email and password';errEl.style.color='var(--red)';return;}
-  if(!supabase){errEl.textContent='Cloud not connected ('+(_supabaseError||'SDK not loaded')+')';errEl.style.color='var(--red)';return;}
+  if(!sb){errEl.textContent='Cloud not connected ('+(_supabaseError||'SDK not loaded')+')';errEl.style.color='var(--red)';return;}
   errEl.textContent='';
   const btn=document.getElementById('authBtn');
   btn.textContent='Loading...';btn.disabled=true;
   try{
     let result;
     if(authMode==='signup'){
-      result=await supabase.auth.signUp({email,password:pass});
+      result=await sb.auth.signUp({email,password:pass});
       if(result.error){errEl.textContent=result.error.message;errEl.style.color='var(--red)';btn.textContent='Sign Up';btn.disabled=false;return;}
       // Check if email confirmation required
       if(result.data.user && !result.data.session){
@@ -455,7 +457,7 @@ async function authAction(){
       currentUser=result.data.user;
       onAuthSuccess();
     } else {
-      result=await supabase.auth.signInWithPassword({email,password:pass});
+      result=await sb.auth.signInWithPassword({email,password:pass});
       if(result.error){errEl.textContent=result.error.message;errEl.style.color='var(--red)';btn.textContent='Sign In';btn.disabled=false;return;}
       currentUser=result.data.user;
       onAuthSuccess();
@@ -473,7 +475,7 @@ function skipAuth(){
 }
 
 async function doLogout(){
-  if(supabase) await supabase.auth.signOut();
+  if(sb) await sb.auth.signOut();
   currentUser=null;
   document.getElementById('userInfo').style.display='none';
   document.getElementById('authScreen').classList.remove('hidden');
@@ -493,9 +495,9 @@ class SyncManager {
   constructor(){ this._queue={}; this._timer=null; }
 
   async load(date){
-    if(!supabase||!currentUser) return null;
+    if(!sb||!currentUser) return null;
     try {
-      const {data,error}=await supabase.from('workbench_days').select('data').eq('id',date).eq('user_id',currentUser.id).single();
+      const {data,error}=await sb.from('workbench_days').select('data').eq('id',date).eq('user_id',currentUser.id).single();
       if(error||!data) return null;
       return data.data;
     } catch(e){ return null; }
@@ -509,13 +511,13 @@ class SyncManager {
   }
 
   async flush(){
-    if(!supabase||!currentUser) return;
+    if(!sb||!currentUser) return;
     const entries=Object.entries(this._queue);
     this._queue={};
     this.setStatus('syncing');
     try {
       for(const [id,data] of entries){
-        await supabase.from('workbench_days').upsert({id, user_id:currentUser.id, data, updated_at:new Date().toISOString()},{onConflict:'id,user_id'});
+        await sb.from('workbench_days').upsert({id, user_id:currentUser.id, data, updated_at:new Date().toISOString()},{onConflict:'id,user_id'});
       }
       this.setStatus('synced');
     } catch(e){
@@ -525,7 +527,7 @@ class SyncManager {
   }
 
   async pushAll(){
-    if(!supabase||!currentUser) return;
+    if(!sb||!currentUser) return;
     this.setStatus('syncing');
     const dates=[];
     for(let i=0;i<localStorage.length;i++){
@@ -537,7 +539,7 @@ class SyncManager {
         const raw=localStorage.getItem('workbench-'+date);
         if(raw){
           const data=JSON.parse(raw);
-          await supabase.from('workbench_days').upsert({id:date,user_id:currentUser.id,data,updated_at:new Date().toISOString()},{onConflict:'id,user_id'});
+          await sb.from('workbench_days').upsert({id:date,user_id:currentUser.id,data,updated_at:new Date().toISOString()},{onConflict:'id,user_id'});
         }
       }catch(e){console.warn('Push failed for',date,e);}
     }
@@ -1367,9 +1369,9 @@ const app=new WorkbenchApp();
 
 // Check existing session on load
 (async()=>{
-  if(!supabase) return;
+  if(!sb) return;
   try{
-    const {data:{session}}=await supabase.auth.getSession();
+    const {data:{session}}=await sb.auth.getSession();
     if(session&&session.user){
       currentUser=session.user;
       onAuthSuccess();
