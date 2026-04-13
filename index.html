@@ -72,8 +72,9 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh
 /* === HERO === */
 .hero{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:24px 28px;margin-bottom:16px;}
 .hero-row1{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:4px;}
-.hero-date{font-size:14px;color:var(--text2);margin-bottom:10px;}
-.hero-status{font-size:13px;color:var(--text3);margin-top:2px;}
+.hero-info{display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap;}
+.hero-date{font-size:14px;color:var(--text2);}
+.hero-status{font-size:13px;color:var(--text3);}
 .hero-status b{font-weight:600;}
 
 /* Three-tier stats */
@@ -94,7 +95,8 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh
 .hero-meta .c-dark{color:var(--text);}
 
 .hero-controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:14px;padding-top:14px;border-top:1px solid var(--border);}
-.hero-controls label{font-size:12px;color:var(--text2);}
+.hc-row{display:flex;gap:8px;align-items:center;}
+.hero-controls label{font-size:12px;color:var(--text2);min-width:32px;}
 .hero-controls input[type="time"]{border:1px solid var(--border);border-radius:6px;padding:5px 8px;font-size:13px;font-family:var(--font);}
 .btn{padding:5px 14px;border-radius:6px;border:none;cursor:pointer;font-size:12px;font-family:var(--font);font-weight:500;transition:all .15s;}
 .btn-primary{background:var(--accent);color:white;}
@@ -226,6 +228,11 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh
 /* Hamburger */
 .hamburger{display:none;background:none;border:none;cursor:pointer;font-size:22px;color:var(--text);padding:2px 6px;border-radius:6px;}
 .hamburger:hover{background:var(--accent-light);}
+.sidebar-account{margin-top:20px;padding-top:16px;border-top:1px solid var(--border);}
+.sidebar-account .sa-email{font-size:12px;color:var(--text2);margin-bottom:8px;word-break:break-all;}
+.sidebar-account .sa-logout{font-size:12px;color:var(--red);cursor:pointer;background:none;border:1px solid var(--border);border-radius:6px;padding:6px 12px;width:100%;text-align:center;}
+.sidebar-account .sa-logout:hover{background:#ffeeed;border-color:var(--red);}
+.desktop-only{}
 .sidebar-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.3);z-index:50;}
 
 /* === Mobile === */
@@ -235,40 +242,38 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh
   .sidebar.open{transform:translateX(0);}
   .sidebar-overlay.open{display:block;}
 
-  /* Header: single tight row */
-  .header{padding:8px 12px;gap:4px;}
-  .header h1{font-size:13px;white-space:nowrap;}
-  .user-info{gap:4px;}
-  .user-info .user-email{max-width:90px;font-size:10px;}
-  .user-info .logout-btn{font-size:9px;padding:1px 6px;}
+  /* Header */
+  .header{padding:8px 12px;gap:6px;}
+  .header h1{font-size:14px;white-space:nowrap;flex:1;}
+  .desktop-only{display:none!important;}
   .date-nav{gap:4px;}
-  .date-nav button{padding:3px 7px;font-size:11px;}
-  .date-nav .today-btn{padding:3px 10px;}
+  .date-nav button{padding:4px 8px;font-size:12px;}
+  .date-nav .today-btn{padding:4px 12px;}
   .date-nav input[type="date"]{display:none;}
   .header-actions{display:none;}
-  #syncStatus{margin-left:-2px;}
   .sync-label{display:none;}
 
   .content{padding:10px 12px;}
 
-  /* Hero card: compact vertical layout */
+  /* Hero card */
   .hero{padding:14px 12px;}
-  .hero-row1{flex-direction:column-reverse;gap:8px;}
+  .hero-info{margin-bottom:8px;}
+  .hero-date{font-size:13px;}
+  .hero-status{font-size:12px;}
+  .hero-row1{flex-direction:column;gap:8px;}
   .hero-tiers{gap:6px;width:100%;}
   .hero-tier{min-width:0;flex:1;padding:8px 6px;border-radius:8px;}
   .hero-tier .ht-rem{font-size:20px;}
   .hero-tier .ht-label{font-size:9px;margin-bottom:4px;}
   .hero-tier .ht-total{font-size:10px;margin-top:2px;}
-  .hero-date{font-size:12px;margin-bottom:2px;text-align:center;}
-  .hero-status{text-align:center;font-size:12px;}
-  .hero-meta{font-size:12px;text-align:center;margin-top:2px;}
+  .hero-meta{font-size:12px;margin-top:4px;}
 
-  /* Time controls: clean grid */
-  .hero-controls{display:grid;grid-template-columns:auto 1fr auto auto 1fr auto;gap:6px 6px;align-items:center;margin-top:10px;padding-top:10px;}
-  .hero-controls label{font-size:11px;text-align:right;}
-  .hero-controls input[type="time"]{font-size:13px;padding:6px 8px;width:100%;}
-  .hero-controls .btn{padding:6px 10px;}
-  .hero-controls span[style]{display:none;}
+  /* Time controls: two rows */
+  .hero-controls{flex-direction:column;gap:8px;align-items:stretch;margin-top:10px;padding-top:10px;}
+  .hc-row{display:flex;gap:6px;align-items:center;}
+  .hc-row label{font-size:12px;min-width:34px;}
+  .hc-row input[type="time"]{flex:1;font-size:14px;padding:8px 10px;}
+  .hc-row .btn{padding:8px 14px;white-space:nowrap;}
 
   /* Breaks: compact */
   .breaks-row{margin-top:10px;padding-top:10px;}
@@ -324,7 +329,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh
   <button class="hamburger" onclick="app.toggleSidebar()">&#9776;</button>
   <h1>Daily Workbench</h1>
   <span id="syncStatus"></span>
-  <div class="user-info" id="userInfo" style="display:none">
+  <div class="user-info desktop-only" id="userInfo" style="display:none">
     <span class="user-email" id="userEmail"></span>
     <button class="logout-btn" onclick="doLogout()">Logout</button>
   </div>
@@ -352,27 +357,23 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh
     <div class="mini-cal" id="miniCal"></div>
     <h3>Recent Days</h3>
     <div class="recent-days" id="recentDays"></div>
+    <div class="sidebar-account" id="sidebarAccount"></div>
   </div>
 
   <div class="content">
     <!-- HERO -->
     <div class="hero">
+      <div class="hero-info">
+        <span class="hero-date" id="heroDate"></span>
+        <span class="hero-status" id="heroStatus"></span>
+      </div>
       <div class="hero-row1">
         <div class="hero-tiers" id="heroTiers"></div>
-        <div style="text-align:right">
-          <div class="hero-date" id="heroDate"></div>
-          <div class="hero-status" id="heroStatus"></div>
-          <div class="hero-meta" id="heroMeta"></div>
-        </div>
+        <div class="hero-meta" id="heroMeta"></div>
       </div>
       <div class="hero-controls">
-        <label>Start:</label>
-        <input type="time" id="startTime" onchange="app.setStartTime(this.value)">
-        <button class="btn btn-primary" onclick="app.clockInNow()">Clock In</button>
-        <span style="width:12px"></span>
-        <label>End:</label>
-        <input type="time" id="endTime" onchange="app.setEndTime(this.value)">
-        <button class="btn btn-outline" onclick="app.clockOutNow()">Clock Out</button>
+        <div class="hc-row"><label>Start:</label><input type="time" id="startTime" onchange="app.setStartTime(this.value)"><button class="btn btn-primary" onclick="app.clockInNow()">Clock In</button></div>
+        <div class="hc-row"><label>End:</label><input type="time" id="endTime" onchange="app.setEndTime(this.value)"><button class="btn btn-outline" onclick="app.clockOutNow()">Clock Out</button></div>
       </div>
       <div class="breaks-row">
         <div class="breaks-label">Fixed Blocks <span style="font-weight:400;color:var(--text3)">(check = already done)</span></div>
@@ -512,16 +513,22 @@ async function doLogout(){
   if(sb) await sb.auth.signOut();
   currentUser=null;
   document.getElementById('userInfo').style.display='none';
+  document.getElementById('sidebarAccount').innerHTML='';
   document.getElementById('authScreen').classList.remove('hidden');
   sync.setStatus('offline');
 }
 
 function onAuthSuccess(){
   document.getElementById('authScreen').classList.add('hidden');
-  document.getElementById('userInfo').style.display='flex';
-  document.getElementById('userEmail').textContent=currentUser.email;
+  // Desktop header
+  const ui=document.getElementById('userInfo');
+  if(ui){ui.style.display='flex';document.getElementById('userEmail').textContent=currentUser.email;}
+  // Sidebar account
+  document.getElementById('sidebarAccount').innerHTML=`
+    <div class="sa-email">${currentUser.email}</div>
+    <button class="sa-logout" onclick="doLogout()">Logout</button>
+  `;
   sync.setStatus('synced');
-  // Pull cloud data for today
   sync.pullDay(app.currentDate).then(()=>app.render());
 }
 
