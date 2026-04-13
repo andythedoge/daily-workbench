@@ -401,42 +401,20 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh
   </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script>
 // === Supabase Config ===
 const SUPABASE_URL = 'https://drvprbkzwgtmyukesst.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRydnByYmt6d2d0bXl1a2Vzc3R2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYwMDQ2NjksImV4cCI6MjA5MTU4MDY2OX0.-HaqEOOIqlGOZxT_TsU4mp0j1-O5GzOP6o51xDy_HJY';
 let supabase = null;
 let _supabaseError = '';
-
-// Load Supabase SDK async - won't block the app
-(function loadSupabase(){
-  const s=document.createElement('script');
-  s.src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js';
-  s.onload=async()=>{
-    try{
-      // Try different global names
-      const lib = window.supabase || window.Supabase;
-      if(!lib){ _supabaseError='global not found'; console.warn('supabase global:',typeof window.supabase); return; }
-      const createFn = lib.createClient || lib.default?.createClient;
-      if(!createFn){ _supabaseError='createClient not found on: '+Object.keys(lib).join(','); return; }
-      supabase = createFn(SUPABASE_URL, SUPABASE_KEY);
-      console.log('Supabase connected');
-      // Check existing session
-      const {data:{session}}=await supabase.auth.getSession();
-      if(session&&session.user){
-        currentUser=session.user;
-        onAuthSuccess();
-        sync.pushAll();
-      }
-    }catch(e){
-      _supabaseError=e.message||String(e);
-      console.warn('Supabase init failed:',e);
-      sync.setStatus('offline');
-    }
-  };
-  s.onerror=(e)=>{_supabaseError='CDN load failed';console.warn('Supabase CDN failed');sync.setStatus('offline');};
-  document.head.appendChild(s);
-})();
+try {
+  supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  console.log('Supabase connected OK');
+} catch(e) {
+  _supabaseError = e.message || String(e);
+  console.warn('Supabase init failed:', e);
+}
 
 // === Auth ===
 let currentUser = null;
@@ -1377,6 +1355,19 @@ function initSampleData(){
 }
 initSampleData();
 const app=new WorkbenchApp();
+
+// Check existing session on load
+(async()=>{
+  if(!supabase) return;
+  try{
+    const {data:{session}}=await supabase.auth.getSession();
+    if(session&&session.user){
+      currentUser=session.user;
+      onAuthSuccess();
+      sync.pushAll();
+    }
+  }catch(e){console.warn('Session check failed:',e);}
+})();
 </script>
 </body>
 </html>
