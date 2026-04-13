@@ -433,27 +433,36 @@ async function authAction(){
   const email=document.getElementById('authEmail').value.trim();
   const pass=document.getElementById('authPass').value;
   const errEl=document.getElementById('authError');
-  if(!email||!pass){errEl.textContent='Please enter email and password';return;}
-  if(!supabase){errEl.textContent='Cloud not connected ('+(_supabaseError||'SDK not loaded')+')';return;}
+  if(!email||!pass){errEl.textContent='Please enter email and password';errEl.style.color='var(--red)';return;}
+  if(!supabase){errEl.textContent='Cloud not connected ('+(_supabaseError||'SDK not loaded')+')';errEl.style.color='var(--red)';return;}
   errEl.textContent='';
-  document.getElementById('authBtn').textContent='Loading...';
+  const btn=document.getElementById('authBtn');
+  btn.textContent='Loading...';btn.disabled=true;
   try{
     let result;
     if(authMode==='signup'){
       result=await supabase.auth.signUp({email,password:pass});
+      if(result.error){errEl.textContent=result.error.message;errEl.style.color='var(--red)';btn.textContent='Sign Up';btn.disabled=false;return;}
+      // Check if email confirmation required
+      if(result.data.user && !result.data.session){
+        errEl.innerHTML='Account created! Check your email to confirm, then Sign In.';
+        errEl.style.color='var(--green)';
+        authMode='signin';btn.textContent='Sign In';btn.disabled=false;
+        document.getElementById('authToggle').innerHTML='No account? <a onclick="toggleAuthMode()">Sign Up</a>';
+        return;
+      }
+      // Auto-confirmed (if email confirm disabled)
+      currentUser=result.data.user;
+      onAuthSuccess();
     } else {
       result=await supabase.auth.signInWithPassword({email,password:pass});
+      if(result.error){errEl.textContent=result.error.message;errEl.style.color='var(--red)';btn.textContent='Sign In';btn.disabled=false;return;}
+      currentUser=result.data.user;
+      onAuthSuccess();
     }
-    if(result.error){
-      errEl.textContent=result.error.message;
-      document.getElementById('authBtn').textContent=authMode==='signin'?'Sign In':'Sign Up';
-      return;
-    }
-    currentUser=result.data.user;
-    onAuthSuccess();
   }catch(e){
-    errEl.textContent='Error: '+e.message;
-    document.getElementById('authBtn').textContent=authMode==='signin'?'Sign In':'Sign Up';
+    errEl.textContent='Error: '+e.message;errEl.style.color='var(--red)';
+    btn.textContent=authMode==='signin'?'Sign In':'Sign Up';btn.disabled=false;
   }
 }
 
