@@ -191,6 +191,30 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh
 ::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
 ::-webkit-scrollbar-thumb:hover{background:var(--text3);}
 
+/* Auth screen */
+.auth-screen{position:fixed;top:0;left:0;right:0;bottom:0;background:var(--bg);z-index:200;display:flex;align-items:center;justify-content:center;}
+.auth-screen.hidden{display:none;}
+.auth-box{background:var(--card);border-radius:16px;box-shadow:var(--shadow2);padding:36px;max-width:380px;width:90%;text-align:center;}
+.auth-box h2{font-size:22px;font-weight:700;margin-bottom:4px;}
+.auth-box .auth-sub{font-size:13px;color:var(--text3);margin-bottom:24px;}
+.auth-box input{width:100%;border:1px solid var(--border);border-radius:8px;padding:10px 14px;font-size:14px;font-family:var(--font);margin-bottom:12px;}
+.auth-box input:focus{outline:none;border-color:var(--accent);}
+.auth-box .auth-btn{width:100%;padding:10px;border-radius:8px;border:none;cursor:pointer;font-size:14px;font-family:var(--font);font-weight:600;transition:all .15s;}
+.auth-box .auth-btn.primary{background:var(--accent);color:white;margin-bottom:10px;}
+.auth-box .auth-btn.primary:hover{opacity:.9;}
+.auth-box .auth-toggle{font-size:13px;color:var(--text3);margin-top:12px;}
+.auth-box .auth-toggle a{color:var(--accent);cursor:pointer;text-decoration:none;}
+.auth-box .auth-toggle a:hover{text-decoration:underline;}
+.auth-box .auth-error{font-size:12px;color:var(--red);margin-bottom:10px;min-height:16px;}
+.auth-box .auth-skip{font-size:12px;color:var(--text3);margin-top:16px;cursor:pointer;}
+.auth-box .auth-skip:hover{color:var(--accent);}
+
+/* User info in header */
+.user-info{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text2);}
+.user-info .user-email{max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.user-info .logout-btn{background:none;border:1px solid var(--border);border-radius:4px;padding:2px 8px;cursor:pointer;font-size:10px;color:var(--text3);}
+.user-info .logout-btn:hover{color:var(--red);border-color:var(--red);}
+
 /* Sync indicator */
 .sync-dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:4px;vertical-align:middle;}
 .sync-dot.synced{background:var(--green);}
@@ -246,10 +270,30 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh
 </head>
 <body>
 
+<!-- Auth Screen -->
+<div class="auth-screen" id="authScreen">
+  <div class="auth-box">
+    <h2>Daily Workbench</h2>
+    <p class="auth-sub">Sign in to sync across devices</p>
+    <div class="auth-error" id="authError"></div>
+    <input type="email" id="authEmail" placeholder="Email">
+    <input type="password" id="authPass" placeholder="Password" onkeydown="if(event.key==='Enter')authAction()">
+    <button class="auth-btn primary" onclick="authAction()" id="authBtn">Sign In</button>
+    <div class="auth-toggle" id="authToggle">
+      No account? <a onclick="toggleAuthMode()">Sign Up</a>
+    </div>
+    <div class="auth-skip" onclick="skipAuth()">Skip, use offline only</div>
+  </div>
+</div>
+
 <div class="header">
   <button class="hamburger" onclick="app.toggleSidebar()">&#9776;</button>
   <h1>Daily Workbench</h1>
   <span id="syncStatus"></span>
+  <div class="user-info" id="userInfo" style="display:none">
+    <span class="user-email" id="userEmail"></span>
+    <button class="logout-btn" onclick="doLogout()">Logout</button>
+  </div>
   <div class="date-nav">
     <button onclick="app.prevDay()">&#8592;</button>
     <button class="today-btn" onclick="app.goToday()">Today</button>
@@ -367,44 +411,114 @@ let supabase = null;
 (function loadSupabase(){
   const s=document.createElement('script');
   s.src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
-  s.onload=()=>{
+  s.onload=async()=>{
     try{
       supabase=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
-      sync.setStatus('synced');
-      // Push all existing localStorage data to cloud
-      sync.pushAll();
+      // Check existing session
+      const {data:{session}}=await supabase.auth.getSession();
+      if(session&&session.user){
+        currentUser=session.user;
+        onAuthSuccess();
+        sync.pushAll();
+      }
+      // else: auth screen stays visible
     }catch(e){console.warn('Supabase init failed:',e);sync.setStatus('offline');}
   };
   s.onerror=()=>{console.warn('Supabase CDN failed, offline mode.');sync.setStatus('offline');};
   document.head.appendChild(s);
 })();
 
+// === Auth ===
+let currentUser = null;
+let authMode = 'signin'; // 'signin' or 'signup'
+
+function toggleAuthMode(){
+  authMode = authMode==='signin'?'signup':'signin';
+  document.getElementById('authBtn').textContent = authMode==='signin'?'Sign In':'Sign Up';
+  document.getElementById('authToggle').innerHTML = authMode==='signin'
+    ? 'No account? <a onclick="toggleAuthMode()">Sign Up</a>'
+    : 'Have an account? <a onclick="toggleAuthMode()">Sign In</a>';
+  document.getElementById('authError').textContent='';
+}
+
+async function authAction(){
+  const email=document.getElementById('authEmail').value.trim();
+  const pass=document.getElementById('authPass').value;
+  const errEl=document.getElementById('authError');
+  if(!email||!pass){errEl.textContent='Please enter email and password';return;}
+  if(!supabase){errEl.textContent='Cloud not connected. Click "Skip" to use offline.';return;}
+  errEl.textContent='';
+  document.getElementById('authBtn').textContent='Loading...';
+  try{
+    let result;
+    if(authMode==='signup'){
+      result=await supabase.auth.signUp({email,password:pass});
+    } else {
+      result=await supabase.auth.signInWithPassword({email,password:pass});
+    }
+    if(result.error){
+      errEl.textContent=result.error.message;
+      document.getElementById('authBtn').textContent=authMode==='signin'?'Sign In':'Sign Up';
+      return;
+    }
+    currentUser=result.data.user;
+    onAuthSuccess();
+  }catch(e){
+    errEl.textContent='Error: '+e.message;
+    document.getElementById('authBtn').textContent=authMode==='signin'?'Sign In':'Sign Up';
+  }
+}
+
+function skipAuth(){
+  document.getElementById('authScreen').classList.add('hidden');
+  sync.setStatus('offline');
+  app.render();
+}
+
+async function doLogout(){
+  if(supabase) await supabase.auth.signOut();
+  currentUser=null;
+  document.getElementById('userInfo').style.display='none';
+  document.getElementById('authScreen').classList.remove('hidden');
+  sync.setStatus('offline');
+}
+
+function onAuthSuccess(){
+  document.getElementById('authScreen').classList.add('hidden');
+  document.getElementById('userInfo').style.display='flex';
+  document.getElementById('userEmail').textContent=currentUser.email;
+  sync.setStatus('synced');
+  // Pull cloud data for today
+  sync.pullDay(app.currentDate).then(()=>app.render());
+}
+
 class SyncManager {
   constructor(){ this._queue={}; this._timer=null; }
 
   async load(date){
-    if(!supabase) return null;
+    if(!supabase||!currentUser) return null;
     try {
-      const {data,error}=await supabase.from('workbench_days').select('data').eq('id',date).single();
+      const {data,error}=await supabase.from('workbench_days').select('data').eq('id',date).eq('user_id',currentUser.id).single();
       if(error||!data) return null;
       return data.data;
     } catch(e){ return null; }
   }
 
   queueSave(date, dayData){
+    if(!currentUser) return;
     this._queue[date]=dayData;
     clearTimeout(this._timer);
     this._timer=setTimeout(()=>this.flush(),2000);
   }
 
   async flush(){
-    if(!supabase) return;
+    if(!supabase||!currentUser) return;
     const entries=Object.entries(this._queue);
     this._queue={};
     this.setStatus('syncing');
     try {
       for(const [id,data] of entries){
-        await supabase.from('workbench_days').upsert({id, data, updated_at:new Date().toISOString()},{onConflict:'id'});
+        await supabase.from('workbench_days').upsert({id, user_id:currentUser.id, data, updated_at:new Date().toISOString()},{onConflict:'id,user_id'});
       }
       this.setStatus('synced');
     } catch(e){
@@ -414,7 +528,8 @@ class SyncManager {
   }
 
   async pushAll(){
-    if(!supabase) return;
+    if(!supabase||!currentUser) return;
+    this.setStatus('syncing');
     const dates=[];
     for(let i=0;i<localStorage.length;i++){
       const k=localStorage.key(i);
@@ -425,10 +540,16 @@ class SyncManager {
         const raw=localStorage.getItem('workbench-'+date);
         if(raw){
           const data=JSON.parse(raw);
-          await supabase.from('workbench_days').upsert({id:date,data,updated_at:new Date().toISOString()},{onConflict:'id'});
+          await supabase.from('workbench_days').upsert({id:date,user_id:currentUser.id,data,updated_at:new Date().toISOString()},{onConflict:'id,user_id'});
         }
       }catch(e){console.warn('Push failed for',date,e);}
     }
+    this.setStatus('synced');
+  }
+
+  async pullDay(date){
+    const cloud=await this.load(date);
+    if(cloud) localStorage.setItem('workbench-'+date, JSON.stringify(cloud));
   }
 
   setStatus(s){
