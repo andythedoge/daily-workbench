@@ -96,7 +96,9 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh
 
 .hero-controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:14px;padding-top:14px;border-top:1px solid var(--border);}
 .hc-row{display:flex;gap:8px;align-items:center;}
-.hero-controls label{font-size:12px;color:var(--text2);min-width:32px;}
+.hero-controls label{font-size:12px;color:var(--text2);min-width:36px;}
+.hc-row input[type="time"]{width:110px;}
+.hc-row .btn{min-width:80px;text-align:center;}
 .hero-controls input[type="time"]{border:1px solid var(--border);border-radius:6px;padding:5px 8px;font-size:13px;font-family:var(--font);}
 .btn{padding:5px 14px;border-radius:6px;border:none;cursor:pointer;font-size:12px;font-family:var(--font);font-weight:500;transition:all .15s;}
 .btn-primary{background:var(--accent);color:white;}
@@ -108,7 +110,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh
 .breaks-row{margin-top:14px;padding-top:14px;border-top:1px solid var(--border);}
 .breaks-label{font-size:12px;font-weight:500;color:var(--text2);margin-bottom:8px;}
 .break-list{display:flex;flex-direction:column;gap:4px;margin-bottom:8px;}
-.break-item{display:flex;align-items:center;gap:8px;font-size:13px;padding:5px 10px;border-radius:8px;background:var(--bg);}
+.break-item{display:flex;align-items:center;gap:8px;font-size:13px;padding:10px 12px;border-radius:8px;background:var(--bg);min-height:42px;}
 .break-item.done{opacity:.65;}
 .break-item .brk-check{width:16px;height:16px;border-radius:3px;border:1.5px solid var(--text3);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:10px;transition:all .15s;flex-shrink:0;}
 .break-item .brk-check:hover{border-color:var(--orange);}
@@ -177,6 +179,14 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh
 .task-line:hover .tl-del{opacity:.45;}
 .tl-del:hover{opacity:1!important;background:#ffeeed;}
 .task-line.empty-line{min-height:10px;}
+.tl-date{font-size:10px;color:var(--text3);margin-top:6px;flex-shrink:0;white-space:nowrap;}
+.tl-est-quick{display:none;gap:3px;flex-shrink:0;margin-top:3px;}
+.task-line:hover .tl-est-quick{display:flex;}
+.tl-est-quick button{font-size:10px;padding:2px 6px;border-radius:4px;background:var(--accent-light);border:none;cursor:pointer;color:var(--accent);font-weight:500;}
+.tl-est-quick button:hover{background:var(--accent);color:white;}
+.import-icon{background:none;border:1px solid var(--border);border-radius:6px;padding:4px 8px;cursor:pointer;font-size:14px;color:var(--text2);transition:all .15s;line-height:1;}
+.import-icon:hover{background:var(--accent-light);color:var(--accent);border-color:var(--accent);}
+.version{font-size:10px;color:var(--text3);text-align:center;padding:8px 0;}
 .task-help{margin-top:10px;font-size:11px;color:var(--text3);line-height:1.6;}
 .task-help kbd{background:var(--bg);border:1px solid var(--border);border-radius:3px;padding:1px 5px;font-size:10px;font-family:var(--font);}
 
@@ -233,6 +243,13 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh
 .sidebar-account .sa-logout{font-size:12px;color:var(--red);cursor:pointer;background:none;border:1px solid var(--border);border-radius:6px;padding:6px 12px;width:100%;text-align:center;}
 .sidebar-account .sa-logout:hover{background:#ffeeed;border-color:var(--red);}
 .desktop-only{}
+.sidebar-changelog{margin-top:12px;}
+.sidebar-changelog summary{font-size:12px;color:var(--accent);cursor:pointer;padding:6px 0;}
+.sidebar-changelog summary:hover{text-decoration:underline;}
+.changelog-content{font-size:11px;color:var(--text2);line-height:1.7;padding:8px 0;}
+.changelog-content h4{font-size:12px;color:var(--text);margin:8px 0 4px;}
+.changelog-content h4:first-child{margin-top:0;}
+.changelog-content ul{padding-left:16px;margin:0;}
 .sidebar-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.3);z-index:50;}
 
 /* === Mobile === */
@@ -359,7 +376,31 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh
     <div class="mini-cal" id="miniCal"></div>
     <h3>Recent Days</h3>
     <div class="recent-days" id="recentDays"></div>
+    <details class="sidebar-changelog">
+      <summary>Changelog</summary>
+      <div class="changelog-content">
+        <h4>v1.1.0 — 2026-04-13</h4>
+        <ul>
+          <li>Email/password auth, multi-user support</li>
+          <li>Supabase cloud sync with status indicator</li>
+          <li>Mobile responsive layout</li>
+          <li>Sidebar login/logout</li>
+          <li>Daily motivational quotes</li>
+        </ul>
+        <h4>v1.0.0 — 2026-04-12</h4>
+        <ul>
+          <li>Time tracking: Clock In/Out, breaks, three-tier dashboard</li>
+          <li>Inline editable tasks with auto-numbering</li>
+          <li>Hierarchical structure (1. a. i.)</li>
+          <li>Checkbox completion, time estimates</li>
+          <li>Undo/Redo (Cmd+Z), IME compatible</li>
+          <li>Day navigation, calendar, task rollover</li>
+          <li>Export/Import JSON</li>
+        </ul>
+      </div>
+    </details>
     <div class="sidebar-account" id="sidebarAccount"></div>
+    <div class="version">v1.1.0</div>
   </div>
 
   <div class="content">
@@ -411,8 +452,8 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh
       <div class="task-card-header">
         <h2>Tasks</h2>
         <div class="task-toolbar">
-          <button class="btn btn-outline" onclick="app.importPrevDay()">Import yesterday</button>
-          <button class="btn btn-outline" onclick="app.addNewLine()">+ Add line</button>
+          <button class="import-icon" onclick="app.importPrevDay()" title="Import yesterday's tasks">&#8617;</button>
+          <button class="btn btn-primary" onclick="app.addNewLine()">+ New Task</button>
         </div>
       </div>
       <div class="task-lines" id="taskLines"></div>
@@ -1072,12 +1113,15 @@ class WorkbenchApp {
       // Editable content
       const ph=idx===0&&!hasContent?'Type your first task...':'';
       html+=`<div class="tl-edit" contenteditable="true" data-idx="${idx}" data-placeholder="${ph}" spellcheck="false">${this.esc(item.content)}</div>`;
-      // Est badge (editable)
+      // Est badge + quick select
       if(item.est){
         html+=`<div class="tl-est" contenteditable="true" data-idx="${idx}" data-role="est" spellcheck="false">${this.esc(item.est)}</div>`;
       } else {
         html+=`<div class="tl-est-placeholder" data-idx="${idx}" data-role="add-est">+h</div>`;
       }
+      html+=`<div class="tl-est-quick" data-idx="${idx}"><button onclick="app.quickEst(${idx},'15m')">15m</button><button onclick="app.quickEst(${idx},'30m')">30m</button><button onclick="app.quickEst(${idx},'1h')">1h</button><button onclick="app.quickEst(${idx},'2h')">2h</button></div>`;
+      // Creation date
+      if(item.createdAt){html+=`<span class="tl-date">${this.fmtRelDate(item.createdAt)}</span>`;}
       html+=`<button class="tl-del" data-idx="${idx}" title="Delete line">&#215;</button>`;
       html+=`</div>`;
     });
@@ -1162,7 +1206,7 @@ class WorkbenchApp {
       const sel=window.getSelection(), range=sel.getRangeAt(0);
       const full=el.textContent, off=range.startOffset;
       items[idx].content=full.substring(0,off);
-      const newItem={content:full.substring(off),indent:items[idx].indent,done:false,est:''};
+      const newItem={content:full.substring(off),indent:items[idx].indent,done:false,est:'',createdAt:new Date().toISOString()};
       items.splice(idx+1,0,newItem);
       this.setItems(items);
       this.renderTaskLines(); this.renderSummary();
@@ -1255,6 +1299,24 @@ class WorkbenchApp {
   setCursorAt(el,offset){const r=document.createRange(),s=window.getSelection();const node=el.childNodes[0];if(node)r.setStart(node,Math.min(offset,node.length));else r.setStart(el,0);r.collapse(true);s.removeAllRanges();s.addRange(r);}
   selectAll(el){const r=document.createRange(),s=window.getSelection();r.selectNodeContents(el);s.removeAllRanges();s.addRange(r);}
 
+  quickEst(idx,val){
+    const items=this.getItems();
+    if(idx<items.length){this.pushUndo();items[idx].est=val;this.setItems(items);this.renderTaskLines();this.renderSummary();}
+  }
+
+  fmtRelDate(iso){
+    if(!iso) return '';
+    const d=new Date(iso);
+    const now=new Date();
+    const days=Math.floor((now-d)/(86400000));
+    const month=d.getMonth()+1, day=d.getDate();
+    const abs=`${month}/${day}`;
+    if(days===0) return 'Today';
+    if(days===1) return 'Yesterday';
+    if(days<7) return `${days}d ago · ${abs}`;
+    return abs;
+  }
+
   toggleLine(idx){
     this.pushUndo();
     const items=this.getItems();
@@ -1266,10 +1328,10 @@ class WorkbenchApp {
 
   addNewLine(){
     const items=this.getItems();
-    items.push({content:'',indent:0,done:false,est:''});
+    items.unshift({content:'',indent:0,done:false,est:'',createdAt:new Date().toISOString()});
     this.setItems(items);
     this.renderTaskLines();
-    const el=document.querySelector(`#taskLines .tl-edit[data-idx="${items.length-1}"]`);
+    const el=document.querySelector('#taskLines .tl-edit[data-idx="0"]');
     if(el) el.focus();
   }
 
