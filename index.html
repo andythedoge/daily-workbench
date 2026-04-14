@@ -1346,7 +1346,6 @@ class WorkbenchApp {
     if(prevData.items) prevItems=prevData.items.filter(i=>i.content||i.est).map(i=>({...i}));
     else prevItems=this.migrateToItems(prevData).filter(i=>i.content||i.est);
     if(!prevItems.length){alert('No tasks to import.');return;}
-    if(!confirm(`Import ${prevItems.length} tasks from ${prev}?\nThis will replace current tasks.`)) return;
     this.pushUndo();
     const data=this.getData();
     data.items=prevItems;
