@@ -174,16 +174,17 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh
 .tl-est:focus{box-shadow:0 0 0 2px rgba(0,113,227,.2);background:#dbeafe;}
 .tl-est:empty::before{content:'+h';color:var(--text3);font-weight:400;font-size:11px;}
 .tl-est-placeholder{font-size:11px;color:var(--text3);background:var(--bg);padding:2px 6px;border-radius:5px;flex-shrink:0;margin-top:4px;cursor:pointer;opacity:0;transition:opacity .15s;}
-.task-line:hover .tl-est-placeholder{opacity:1;}
+.task-line.active .tl-est-placeholder{opacity:1;}
 .tl-del{background:none;border:none;cursor:pointer;color:var(--red);font-size:20px;padding:2px 6px;margin-top:1px;flex-shrink:0;opacity:0;transition:opacity .15s;border-radius:4px;}
 .task-line:hover .tl-del{opacity:.45;}
 .tl-del:hover{opacity:1!important;background:#ffeeed;}
 .task-line.empty-line{min-height:10px;}
-.tl-date{font-size:10px;color:var(--text3);margin-top:6px;flex-shrink:0;white-space:nowrap;}
-.tl-est-quick{display:none;gap:3px;flex-shrink:0;margin-top:3px;}
-.task-line:hover .tl-est-quick{display:flex;}
-.tl-est-quick button{font-size:10px;padding:2px 6px;border-radius:4px;background:var(--accent-light);border:none;cursor:pointer;color:var(--accent);font-weight:500;}
-.tl-est-quick button:hover{background:var(--accent);color:white;}
+.tl-date{font-size:10px;color:var(--text3);margin-top:6px;flex-shrink:0;white-space:nowrap;opacity:0;transition:opacity .15s;}
+.task-line:hover .tl-date,.task-line.active .tl-date{opacity:1;}
+.tl-est-quick{display:none;gap:2px;flex-shrink:0;margin-top:4px;}
+.task-line.active .tl-est-quick{display:flex;}
+.tl-est-quick button{font-size:10px;padding:2px 5px;border-radius:3px;background:var(--bg);border:1px solid var(--border);cursor:pointer;color:var(--text2);font-weight:500;line-height:1.3;}
+.tl-est-quick button:hover{background:var(--accent);color:white;border-color:var(--accent);}
 .import-icon{background:none;border:1px solid var(--border);border-radius:6px;padding:4px 8px;cursor:pointer;font-size:14px;color:var(--text2);transition:all .15s;line-height:1;}
 .import-icon:hover{background:var(--accent-light);color:var(--accent);border-color:var(--accent);}
 .version{font-size:10px;color:var(--text3);text-align:center;padding:8px 0;}
@@ -1119,7 +1120,7 @@ class WorkbenchApp {
       } else {
         html+=`<div class="tl-est-placeholder" data-idx="${idx}" data-role="add-est">+h</div>`;
       }
-      html+=`<div class="tl-est-quick" data-idx="${idx}"><button onclick="app.quickEst(${idx},'15m')">15m</button><button onclick="app.quickEst(${idx},'30m')">30m</button><button onclick="app.quickEst(${idx},'1h')">1h</button><button onclick="app.quickEst(${idx},'2h')">2h</button></div>`;
+      html+=`<div class="tl-est-quick" data-idx="${idx}"><button onclick="app.quickEst(${idx},'15m')">15m</button><button onclick="app.quickEst(${idx},'30m')">30m</button><button onclick="app.quickEst(${idx},'1h')">1h</button></div>`;
       // Creation date
       if(item.createdAt){html+=`<span class="tl-date">${this.fmtRelDate(item.createdAt)}</span>`;}
       html+=`<button class="tl-del" data-idx="${idx}" title="Delete line">&#215;</button>`;
@@ -1137,6 +1138,8 @@ class WorkbenchApp {
       el.addEventListener('input',()=>this.onContentEdit(el));
       el.addEventListener('keydown',e=>this.onContentKeydown(e,el));
       el.addEventListener('paste',e=>this.onContentPaste(e,el));
+      el.addEventListener('focus',()=>{document.querySelectorAll('.task-line.active').forEach(l=>l.classList.remove('active'));el.closest('.task-line')?.classList.add('active');});
+      el.addEventListener('blur',()=>{setTimeout(()=>{const ae=document.activeElement;if(!ae||!ae.closest||ae.closest('.task-line')!==el.closest('.task-line'))el.closest('.task-line')?.classList.remove('active');},150);});
     });
     document.querySelectorAll('#taskLines .tl-est').forEach(el=>{
       el.addEventListener('input',()=>this.onEstEdit(el));
