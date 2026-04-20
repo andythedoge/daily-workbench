@@ -1735,8 +1735,7 @@ class WorkbenchApp {
     h+=`<div class="people-search"><input type="text" placeholder="Search..." value="${this.esc(this._peopleSearch)}" oninput="app._peopleSearch=this.value;app.renderPeopleList()"></div>`;
     filtered.forEach(p=>{
       const taskCount=this.countTasksForPerson(p.id);
-      const noteCount=(p.notes||[]).filter(n=>n.content).length;
-      const badge=taskCount>0?taskCount:(noteCount>0?noteCount+'n':'');
+      const badge=taskCount>0?taskCount:'';
       const act=p.id===this.selectedPersonId?' active':'';
       h+=`<div class="person-item${act}" onclick="app.selectPerson('${p.id}')">
         <span class="pi-name">${this.esc(p.name)}</span>
@@ -1764,8 +1763,6 @@ class WorkbenchApp {
       return;
     }
 
-    const notes=person.notes||[{content:'',indent:0,done:false,est:''}];
-    const labels=this.computeNumbering(notes);
     const taggedTasks=this.getTasksForPerson(person.id);
 
     let h=`<div class="person-header">
@@ -1773,30 +1770,9 @@ class WorkbenchApp {
       <button class="person-del" onclick="app.removePerson('${person.id}')">Delete</button>
     </div>`;
 
-    // Notes section
+    // Tagged tasks
     h+=`<div class="person-section">
-      <div class="person-section-title">Notes <span class="count">${notes.filter(n=>n.content).length}</span></div>
-      <div class="person-notes-editor"><div class="task-card"><div class="task-lines" id="personNotes">`;
-    notes.forEach((item,idx)=>{
-      const indentPx=item.indent*28;
-      const doneCls=item.done?' done':'';
-      const checkCls=item.done?' checked':'';
-      const label=labels[idx];
-      h+=`<div class="task-line${doneCls}" style="padding-left:${indentPx}px" data-idx="${idx}">`;
-      h+=`<div class="tl-inner">`;
-      h+=`<div class="tl-check${checkCls}" data-idx="${idx}">${item.done?'&#10003;':''}</div>`;
-      if(label) h+=`<span class="tl-num">${label}</span>`;
-      else h+=`<span class="tl-num" style="visibility:hidden">1.</span>`;
-      const ph=idx===0&&!item.content?'Write notes about this person...':'';
-      h+=`<div class="tl-edit pn-edit" contenteditable="true" data-idx="${idx}" data-placeholder="${ph}" spellcheck="false">${this.esc(item.content)}</div>`;
-      h+=`<button class="tl-del pn-del" data-idx="${idx}" title="Delete">&#215;</button>`;
-      h+=`</div></div>`;
-    });
-    h+=`</div></div></div></div>`;
-
-    // Tagged tasks section
-    h+=`<div class="person-section">
-      <div class="person-section-title">Tagged Tasks <span class="count">${taggedTasks.length}</span></div>
+      <div class="person-section-title">Tasks <span class="count">${taggedTasks.length}</span></div>
       <div class="tagged-tasks" id="personTasks">`;
     if(taggedTasks.length){
       taggedTasks.forEach(t=>{
@@ -1809,7 +1785,7 @@ class WorkbenchApp {
         </div>`;
       });
     } else {
-      h+='<div class="tagged-tasks-empty">No tasks tagged to this person yet. Use @ on task lines to tag.</div>';
+      h+='<div class="tagged-tasks-empty">No tasks tagged yet. Use @ on task lines to tag.</div>';
     }
     h+=`</div></div>`;
 
@@ -1818,7 +1794,6 @@ class WorkbenchApp {
   }
 
   bindPersonDetailEvents(personId){
-    // Name editing
     const nameEl=document.getElementById('personName');
     if(nameEl){
       nameEl.addEventListener('blur',()=>{
@@ -1828,91 +1803,6 @@ class WorkbenchApp {
       });
       nameEl.addEventListener('keydown',e=>{if(e.isComposing||e.keyCode===229) return;if(e.key==='Enter'){e.preventDefault();nameEl.blur();}});
     }
-
-    // Notes line events (similar to task lines)
-    const notesEl=document.getElementById('personNotes');
-    if(!notesEl) return;
-
-    notesEl.querySelectorAll('.tl-check').forEach(el=>{
-      el.addEventListener('click',()=>{
-        const idx=parseInt(el.dataset.idx);
-        const people=this.loadPeople();
-        const p=people.find(p=>p.id===personId);
-        if(p&&p.notes&&p.notes[idx]){p.notes[idx].done=!p.notes[idx].done;this.savePeople(people);this.renderPersonDetail();}
-      });
-    });
-
-    notesEl.querySelectorAll('.pn-edit').forEach(el=>{
-      el.addEventListener('input',()=>{
-        clearTimeout(this._noteSaveTimer);
-        this._noteSaveTimer=setTimeout(()=>{
-          const idx=parseInt(el.dataset.idx);
-          const people=this.loadPeople();
-          const p=people.find(p=>p.id===personId);
-          if(p&&p.notes&&idx<p.notes.length){p.notes[idx].content=el.textContent;this.savePeople(people);}
-        },500);
-      });
-      el.addEventListener('keydown',e=>{
-        if(e.isComposing||e.keyCode===229) return;
-        const idx=parseInt(el.dataset.idx);
-        if(e.key==='Enter'&&!e.shiftKey){
-          e.preventDefault();
-          const people=this.loadPeople();
-          const p=people.find(pp=>pp.id===personId);
-          if(!p) return;
-          p.notes[idx].content=el.textContent;
-          const sel=window.getSelection(),range=sel.getRangeAt(0);
-          const full=el.textContent,off=range.startOffset;
-          p.notes[idx].content=full.substring(0,off);
-          p.notes.splice(idx+1,0,{content:full.substring(off),indent:p.notes[idx].indent,done:false,est:''});
-          this.savePeople(people);this.renderPersonDetail();
-          setTimeout(()=>{const newEl=document.querySelector(`#personNotes .pn-edit[data-idx="${idx+1}"]`);if(newEl){newEl.focus();this.setCursorStart(newEl);}},10);
-          return;
-        }
-        if(e.key==='Backspace'){
-          const sel=window.getSelection();
-          if(sel.isCollapsed&&sel.anchorOffset===0&&idx>0){
-            e.preventDefault();
-            const people=this.loadPeople();
-            const p=people.find(pp=>pp.id===personId);
-            if(!p) return;
-            const mergePoint=p.notes[idx-1].content.length;
-            p.notes[idx-1].content+=el.textContent;
-            p.notes.splice(idx,1);
-            this.savePeople(people);this.renderPersonDetail();
-            setTimeout(()=>{const prevEl=document.querySelector(`#personNotes .pn-edit[data-idx="${idx-1}"]`);if(prevEl){prevEl.focus();this.setCursorAt(prevEl,mergePoint);}},10);
-            return;
-          }
-        }
-        if(e.key==='Tab'){
-          e.preventDefault();
-          const people=this.loadPeople();
-          const p=people.find(pp=>pp.id===personId);
-          if(!p) return;
-          p.notes[idx].content=el.textContent;
-          if(e.shiftKey) p.notes[idx].indent=Math.max(0,p.notes[idx].indent-1);
-          else p.notes[idx].indent=Math.min(3,p.notes[idx].indent+1);
-          this.savePeople(people);
-          const curOff=window.getSelection().isCollapsed?window.getSelection().anchorOffset:0;
-          this.renderPersonDetail();
-          setTimeout(()=>{const newEl=document.querySelector(`#personNotes .pn-edit[data-idx="${idx}"]`);if(newEl){newEl.focus();this.setCursorAt(newEl,curOff);}},10);
-        }
-        if(e.key==='ArrowUp'&&idx>0){e.preventDefault();const prev=document.querySelector(`#personNotes .pn-edit[data-idx="${idx-1}"]`);if(prev){prev.focus();this.setCursorEnd(prev);}}
-        if(e.key==='ArrowDown'){const people=this.loadPeople();const p=people.find(pp=>pp.id===personId);if(p&&idx<p.notes.length-1){e.preventDefault();const next=document.querySelector(`#personNotes .pn-edit[data-idx="${idx+1}"]`);if(next){next.focus();this.setCursorEnd(next);}}}
-      });
-    });
-
-    notesEl.querySelectorAll('.pn-del').forEach(el=>{
-      el.addEventListener('click',()=>{
-        const idx=parseInt(el.dataset.idx);
-        const people=this.loadPeople();
-        const p=people.find(pp=>pp.id===personId);
-        if(!p) return;
-        if(p.notes.length<=1){p.notes[0]={content:'',indent:0,done:false,est:''};}
-        else{p.notes.splice(idx,1);}
-        this.savePeople(people);this.renderPersonDetail();
-      });
-    });
   }
 
   // === Person Tags on Tasks ===
