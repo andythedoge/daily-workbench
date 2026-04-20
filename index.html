@@ -168,7 +168,8 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh
 .tl-check:hover{border-color:var(--green);background:var(--green-bg);}
 .tl-check.checked{background:var(--green);border-color:var(--green);color:white;}
 .tl-num{font-size:16px;color:var(--accent);font-weight:500;min-width:24px;margin-top:1px;flex-shrink:0;user-select:none;text-align:right;}
-.tl-edit{flex:1;min-width:0;outline:none;word-break:break-word;cursor:text;padding:2px 0;caret-color:var(--accent);}
+.tl-text-wrap{flex:1;min-width:0;line-height:1.9;padding:2px 0;cursor:text;}
+.tl-edit{display:inline;outline:none;word-break:break-word;cursor:text;caret-color:var(--accent);min-width:40px;}
 .tl-edit:empty::before{content:attr(data-placeholder);color:var(--text3);}
 .tl-cyc{font-size:12px;padding:3px 8px;border-radius:5px;flex-shrink:0;margin-top:3px;margin-left:auto;white-space:nowrap;font-weight:600;cursor:pointer;border:none;transition:all .12s;min-width:32px;text-align:center;}
 .tl-cyc.has{background:var(--accent-light);color:var(--accent);}
@@ -328,7 +329,77 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh
   .task-toolbar{gap:4px;}
   .task-toolbar button{font-size:10px;padding:4px 8px;}
   .task-help{display:none;}
+  /* People mobile */
+  .people-view{flex-direction:column!important;}
+  .people-list{width:100%!important;max-height:200px;border-right:none!important;border-bottom:1px solid var(--border);}
+  .person-detail{padding:16px 12px!important;}
+  .person-header h2{font-size:18px!important;}
+  .person-notes-editor .task-line{font-size:14px!important;}
 }
+
+/* === Tab Bar === */
+.tab-bar{display:flex;gap:4px;margin-bottom:16px;background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:4px;}
+.tab-bar button{flex:1;padding:8px 16px;border:none;border-radius:8px;background:transparent;cursor:pointer;font-size:13px;font-weight:500;font-family:var(--font);color:var(--text2);transition:all .15s;}
+.tab-bar button:hover{background:var(--bg);}
+.tab-bar button.active{background:var(--accent);color:white;box-shadow:0 1px 4px rgba(0,113,227,.25);}
+.today-view,.people-view{display:none;}
+.today-view.active,.people-view.active{display:block;}
+.people-view.active{display:flex;}
+
+/* === People View === */
+.people-view{gap:0;height:calc(100vh - 120px);background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;}
+.people-list{width:240px;border-right:1px solid var(--border);overflow-y:auto;flex-shrink:0;padding:12px 0;}
+.people-list-header{display:flex;align-items:center;justify-content:space-between;padding:4px 14px 10px;border-bottom:1px solid var(--border);}
+.people-list-header h3{font-size:12px;text-transform:uppercase;color:var(--text3);letter-spacing:.5px;font-weight:600;}
+.people-list-header button{background:var(--accent);color:white;border:none;border-radius:6px;padding:4px 10px;font-size:11px;font-weight:500;cursor:pointer;font-family:var(--font);}
+.people-list-header button:hover{opacity:.9;}
+.people-search{padding:8px 14px;}
+.people-search input{width:100%;border:1px solid var(--border);border-radius:6px;padding:6px 10px;font-size:12px;font-family:var(--font);}
+.people-search input:focus{outline:none;border-color:var(--accent);}
+.person-item{display:flex;align-items:center;justify-content:space-between;padding:8px 14px;cursor:pointer;transition:all .1s;border-left:3px solid transparent;}
+.person-item:hover{background:var(--bg);}
+.person-item.active{background:var(--accent-light);border-left-color:var(--accent);}
+.person-item .pi-name{font-size:13px;font-weight:500;}
+.person-item .pi-badge{font-size:10px;background:var(--bg);color:var(--text3);border-radius:10px;padding:1px 7px;min-width:20px;text-align:center;}
+.person-item.active .pi-badge{background:rgba(0,113,227,.15);color:var(--accent);}
+
+/* Person Detail */
+.person-detail{flex:1;overflow-y:auto;padding:24px 28px;}
+.person-detail-empty{display:flex;align-items:center;justify-content:center;height:100%;color:var(--text3);font-size:14px;}
+.person-header{display:flex;align-items:center;gap:12px;margin-bottom:20px;padding-bottom:14px;border-bottom:1px solid var(--border);}
+.person-header h2{font-size:22px;font-weight:700;outline:none;padding:2px 4px;border-radius:4px;min-width:60px;}
+.person-header h2:focus{background:var(--bg);box-shadow:0 0 0 1px var(--border);}
+.person-header h2:empty::before{content:'Name';color:var(--text3);}
+.person-header .person-del{background:none;border:1px solid var(--border);border-radius:6px;padding:4px 10px;font-size:11px;color:var(--red);cursor:pointer;font-family:var(--font);margin-left:auto;}
+.person-header .person-del:hover{background:#ffeeed;border-color:var(--red);}
+
+.person-section{margin-bottom:24px;}
+.person-section-title{font-size:11px;text-transform:uppercase;color:var(--text3);letter-spacing:.5px;font-weight:600;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+.person-section-title .count{font-size:10px;background:var(--bg);color:var(--text2);border-radius:10px;padding:1px 7px;}
+.person-notes-editor .task-line{font-size:15px;}
+.person-notes-editor .task-card{box-shadow:none;padding:0;margin-bottom:0;border:1px solid var(--border);border-radius:8px;padding:8px 12px;}
+
+/* Tagged tasks list */
+.tagged-tasks .tt-item{display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:6px;font-size:13px;cursor:pointer;transition:background .1s;}
+.tagged-tasks .tt-item:hover{background:var(--bg);}
+.tagged-tasks .tt-date{font-size:11px;color:var(--text3);min-width:70px;flex-shrink:0;}
+.tagged-tasks .tt-text{flex:1;color:var(--text);}
+.tagged-tasks .tt-text.done{text-decoration:line-through;color:var(--text3);}
+.tagged-tasks .tt-check{width:14px;height:14px;border-radius:3px;border:1.5px solid var(--text3);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:9px;}
+.tagged-tasks .tt-check.checked{background:var(--green);border-color:var(--green);color:white;}
+.tagged-tasks-empty{color:var(--text3);font-size:13px;padding:8px 0;}
+
+/* === Person Tag on Tasks === */
+.tl-person{display:inline-block;font-size:10px;padding:1px 7px;border-radius:10px;background:#f0e8ff;color:#7c3aed;font-weight:500;cursor:pointer;white-space:nowrap;border:1px solid transparent;transition:all .12s;vertical-align:middle;margin-left:4px;max-width:80px;overflow:hidden;text-overflow:ellipsis;}
+.tl-person:hover{border-color:#7c3aed;background:#e8dff8;}
+.tl-person.empty{opacity:0;background:var(--bg);color:var(--text3);border:1px dashed var(--border);font-weight:400;}
+.task-line:hover .tl-person.empty,.task-line.active .tl-person.empty{opacity:1;}
+.tl-person.empty::before{content:'@';}
+.person-dropdown{position:absolute;top:100%;left:0;background:var(--card);border:1px solid var(--border);border-radius:8px;box-shadow:var(--shadow2);z-index:50;min-width:160px;max-height:200px;overflow-y:auto;padding:4px;}
+.person-dropdown .pd-item{padding:6px 10px;border-radius:5px;font-size:12px;cursor:pointer;transition:background .1s;}
+.person-dropdown .pd-item:hover{background:var(--accent-light);}
+.person-dropdown .pd-item.selected{background:var(--accent-light);color:var(--accent);font-weight:500;}
+.person-dropdown .pd-none{color:var(--red);font-style:italic;}
 </style>
 </head>
 <body>
@@ -384,6 +455,16 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh
     <details class="sidebar-changelog">
       <summary>Changelog</summary>
       <div class="changelog-content">
+        <h4>v1.2.0 — 2026-04-20</h4>
+        <ul>
+          <li>People management: add/edit/delete contacts with per-person notes</li>
+          <li>Notes editor reuses task-line editing (Enter, Tab, checkbox, etc.)</li>
+          <li>Person tags on tasks: type @ in task text or click tag to assign</li>
+          <li>@ dropdown with fuzzy search and keyboard navigation</li>
+          <li>People view: two-panel layout with search, tagged tasks summary</li>
+          <li>Top tab bar to switch between Today and People views</li>
+          <li>People data syncs to Supabase and included in export/import</li>
+        </ul>
         <h4>v1.1.0 — 2026-04-13</h4>
         <ul>
           <li>Email/password auth, multi-user support</li>
@@ -405,10 +486,18 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh
       </div>
     </details>
     <div class="sidebar-account" id="sidebarAccount"></div>
-    <div class="version">v1.1.0</div>
+    <div class="version">v1.2.0</div>
   </div>
 
   <div class="content">
+    <!-- Tab Bar -->
+    <div class="tab-bar">
+      <button class="active" onclick="app.switchTab('today')">Today</button>
+      <button onclick="app.switchTab('people')">People</button>
+    </div>
+
+    <!-- Today View -->
+    <div class="today-view active" id="todayView">
     <!-- HERO -->
     <div class="hero">
       <div class="hero-info">
@@ -470,6 +559,16 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh
         End with <kbd>0.5h</kbd> for estimate
       </div>
     </div>
+    </div><!-- /today-view -->
+
+    <!-- People View -->
+    <div class="people-view" id="peopleView">
+      <div class="people-list" id="peopleList"></div>
+      <div class="person-detail" id="personDetail">
+        <div class="person-detail-empty">Select a person to view details</div>
+      </div>
+    </div>
+
   </div>
 </div>
 
@@ -578,6 +677,7 @@ function onAuthSuccess(){
   `;
   sync.setStatus('synced');
   sync.pullDay(app.currentDate).then(()=>app.render());
+  app.pullPeople();
 }
 
 class SyncManager {
@@ -621,8 +721,11 @@ class SyncManager {
     const dates=[];
     for(let i=0;i<localStorage.length;i++){
       const k=localStorage.key(i);
-      if(k.startsWith('workbench-')) dates.push(k.replace('workbench-',''));
+      if(k.startsWith('workbench-')&&k!=='workbench-people') dates.push(k.replace('workbench-',''));
     }
+    // Sync people data
+    const peopleRaw=localStorage.getItem('workbench-people');
+    if(peopleRaw){try{await sb.from('workbench_days').upsert({id:'__people__',user_id:currentUser.id,data:JSON.parse(peopleRaw),updated_at:new Date().toISOString()},{onConflict:'id,user_id'});}catch(e){console.warn('Push people failed:',e);}}
     for(const date of dates){
       try{
         const raw=localStorage.getItem('workbench-'+date);
@@ -679,7 +782,7 @@ class WorkbenchApp {
     const dates=[];
     for(let i=0;i<localStorage.length;i++){
       const k=localStorage.key(i);
-      if(k.startsWith('workbench-')) dates.push(k.replace('workbench-',''));
+      if(k.startsWith('workbench-')&&k!=='workbench-people') dates.push(k.replace('workbench-',''));
     }
     return dates.sort().reverse();
   }
@@ -1116,7 +1219,10 @@ class WorkbenchApp {
       if(label) html+=`<span class="tl-num">${label}</span>`;
       else html+=`<span class="tl-num" style="visibility:hidden">1.</span>`;
       const ph=idx===0&&!hasContent?'Type your first task...':'';
-      html+=`<div class="tl-edit" contenteditable="true" data-idx="${idx}" data-placeholder="${ph}" spellcheck="false">${this.esc(item.content)}</div>`;
+      const personName=item.personId?((this.getPersonById(item.personId)||{}).name||''):'';
+      const pTagCls=personName?'tl-person':'tl-person empty';
+      html+=`<div class="tl-text-wrap"><div class="tl-edit" contenteditable="true" data-idx="${idx}" data-placeholder="${ph}" spellcheck="false">${this.esc(item.content)}</div>`;
+      html+=`<span class="${pTagCls}" data-idx="${idx}" onclick="app.showPersonDropdown(${idx},this)">${personName?this.esc(personName):''}</span></div>`;
       const estCls=item.est?'has':'empty';
       html+=`<button class="tl-cyc ${estCls}" data-idx="${idx}" onclick="app.cycleEst(${idx})">${item.est||'15m'}</button>`;
       if(item.createdAt){html+=`<span class="tl-date">${this.fmtRelDate(item.createdAt)}</span>`;}
@@ -1128,6 +1234,9 @@ class WorkbenchApp {
   }
 
   bindLineEvents(){
+    document.querySelectorAll('#taskLines .tl-text-wrap').forEach(wrap=>{
+      wrap.addEventListener('click',e=>{if(e.target===wrap){const ed=wrap.querySelector('.tl-edit');if(ed){ed.focus();this.setCursorEnd(ed);}}});
+    });
     document.querySelectorAll('#taskLines .tl-check[data-idx]').forEach(el=>{
       el.addEventListener('click',e=>{e.stopPropagation();this.toggleLine(parseInt(el.dataset.idx));});
     });
@@ -1136,7 +1245,7 @@ class WorkbenchApp {
       el.addEventListener('keydown',e=>this.onContentKeydown(e,el));
       el.addEventListener('paste',e=>this.onContentPaste(e,el));
       el.addEventListener('focus',()=>{document.querySelectorAll('.task-line.active').forEach(l=>l.classList.remove('active'));el.closest('.task-line')?.classList.add('active');});
-      el.addEventListener('blur',()=>{setTimeout(()=>{const ae=document.activeElement;if(!ae||!ae.closest||ae.closest('.task-line')!==el.closest('.task-line'))el.closest('.task-line')?.classList.remove('active');},150);});
+      el.addEventListener('blur',()=>{setTimeout(()=>{this.hideAtDropdown();const ae=document.activeElement;if(!ae||!ae.closest||ae.closest('.task-line')!==el.closest('.task-line'))el.closest('.task-line')?.classList.remove('active');},150);});
     });
     document.querySelectorAll('#taskLines .tl-del').forEach(el=>{
       el.addEventListener('click',()=>{
@@ -1190,11 +1299,81 @@ class WorkbenchApp {
       if(idx<items.length){ items[idx].content=el.textContent; this.setItems(items); }
       this.renderSummary(); this.renderRecentDays();
     },500);
+    this.checkAtTrigger(el);
+  }
+
+  checkAtTrigger(el){
+    const sel=window.getSelection();
+    if(!sel.isCollapsed) return;
+    const text=el.textContent;
+    const pos=sel.anchorOffset;
+    const before=text.substring(0,pos);
+    const atMatch=before.match(/@([^@\s]*)$/);
+    if(!atMatch){this.hideAtDropdown();return;}
+    const query=atMatch[1].toLowerCase();
+    const atStart=pos-atMatch[0].length;
+    const people=this.loadPeople().filter(p=>!query||p.name.toLowerCase().includes(query)).sort((a,b)=>a.name.localeCompare(b.name));
+    if(!people.length){this.hideAtDropdown();return;}
+    this.showAtDropdown(el,parseInt(el.dataset.idx),atStart,pos,people);
+  }
+
+  showAtDropdown(el,taskIdx,atStart,cursorPos,people){
+    this.hideAtDropdown();
+    const dd=document.createElement('div');
+    dd.className='person-dropdown';
+    dd.id='atDropdown';
+    people.forEach(p=>{
+      const item=document.createElement('div');
+      item.className='pd-item';
+      item.textContent=p.name;
+      item.addEventListener('mousedown',e=>{
+        e.preventDefault();
+        const text=el.textContent;
+        const before=text.substring(0,atStart);
+        const after=text.substring(cursorPos);
+        el.textContent=before+after;
+        const items=this.getItems();
+        if(taskIdx<items.length){items[taskIdx].content=el.textContent;items[taskIdx].personId=p.id;this.setItems(items);}
+        this.hideAtDropdown();
+        this.renderTaskLines();this.renderSummary();
+        const newEl=document.querySelector(`#taskLines .tl-edit[data-idx="${taskIdx}"]`);
+        if(newEl){newEl.focus();this.setCursorAt(newEl,atStart);}
+      });
+      dd.appendChild(item);
+    });
+    const rect=el.getBoundingClientRect();
+    dd.style.position='fixed';
+    dd.style.top=(rect.bottom+2)+'px';
+    dd.style.left=Math.min(rect.left+50, window.innerWidth-170)+'px';
+    document.body.appendChild(dd);
+    this._atDropdown=dd;
+    this._atDropdownIdx=0;
+    this._highlightAtItem(0);
+  }
+
+  _highlightAtItem(idx){
+    if(!this._atDropdown) return;
+    const items=this._atDropdown.querySelectorAll('.pd-item');
+    items.forEach((it,i)=>{it.classList.toggle('selected',i===idx);});
+    this._atDropdownIdx=idx;
+  }
+
+  hideAtDropdown(){
+    if(this._atDropdown){this._atDropdown.remove();this._atDropdown=null;}
   }
 
   onContentKeydown(e,el){
     if(e.isComposing||e.keyCode===229) return;
     const idx=parseInt(el.dataset.idx);
+
+    // @ dropdown keyboard nav
+    if(this._atDropdown){
+      const items=this._atDropdown.querySelectorAll('.pd-item');
+      if(e.key==='ArrowDown'){e.preventDefault();this._highlightAtItem(Math.min(this._atDropdownIdx+1,items.length-1));return;}
+      if(e.key==='ArrowUp'){e.preventDefault();this._highlightAtItem(Math.max(this._atDropdownIdx-1,0));return;}
+      if(e.key==='Enter'){e.preventDefault();const sel=items[this._atDropdownIdx];if(sel)sel.dispatchEvent(new MouseEvent('mousedown',{bubbles:true}));return;}
+      if(e.key==='Escape'){e.preventDefault();this.hideAtDropdown();return;}
+    }
 
     if(e.key==='Enter'&&!e.shiftKey){
       e.preventDefault();
@@ -1457,6 +1636,7 @@ class WorkbenchApp {
   // === Export/Import ===
   exportData(){
     const all={};this.getAllDates().forEach(d=>{all[d]=this.loadDay(d);});
+    all.__people__=this.loadPeople();
     const blob=new Blob([JSON.stringify(all,null,2)],{type:'application/json'});
     const url=URL.createObjectURL(blob);const a=document.createElement('a');
     a.href=url;a.download=`workbench-${this.todayStr()}.json`;a.click();URL.revokeObjectURL(url);
@@ -1465,8 +1645,334 @@ class WorkbenchApp {
   hideImport(){document.getElementById('importModal').classList.add('hidden');}
   importData(){
     try{const text=document.getElementById('importText').value;const data=JSON.parse(text);let count=0;
-    Object.keys(data).forEach(date=>{if(data[date]&&data[date].date){this.saveDay(data[date]);count++;}});
+    Object.keys(data).forEach(key=>{
+      if(key==='__people__'){localStorage.setItem('workbench-people',JSON.stringify(data[key]));return;}
+      if(data[key]&&data[key].date){this.saveDay(data[key]);count++;}
+    });
     alert(`Imported ${count} day(s).`);this.hideImport();this.render();}catch(e){alert('Invalid JSON.');}
+  }
+
+  // === Tab Switching ===
+  currentTab = 'today';
+  switchTab(tab){
+    this.currentTab=tab;
+    document.querySelectorAll('.tab-bar button').forEach((btn,i)=>{
+      btn.classList.toggle('active', (i===0&&tab==='today')||(i===1&&tab==='people'));
+    });
+    document.getElementById('todayView').classList.toggle('active', tab==='today');
+    document.getElementById('peopleView').classList.toggle('active', tab==='people');
+    if(tab==='people') this.renderPeopleView();
+  }
+
+  // === People Data ===
+  loadPeople(){
+    const raw=localStorage.getItem('workbench-people');
+    return raw?JSON.parse(raw):[];
+  }
+  savePeople(people){
+    localStorage.setItem('workbench-people',JSON.stringify(people));
+    this.syncPeople();
+  }
+  syncPeople(){
+    if(!sb||!currentUser) return;
+    clearTimeout(this._peopleSyncTimer);
+    this._peopleSyncTimer=setTimeout(async()=>{
+      try{
+        sync.setStatus('syncing');
+        await sb.from('workbench_days').upsert({id:'__people__',user_id:currentUser.id,data:this.loadPeople(),updated_at:new Date().toISOString()},{onConflict:'id,user_id'});
+        sync.setStatus('synced');
+      }catch(e){sync.setStatus('offline');}
+    },2000);
+  }
+  async pullPeople(){
+    if(!sb||!currentUser) return;
+    try{
+      const {data}=await sb.from('workbench_days').select('data').eq('id','__people__').eq('user_id',currentUser.id).single();
+      if(data&&data.data) localStorage.setItem('workbench-people',JSON.stringify(data.data));
+    }catch(e){}
+  }
+
+  genId(){return 'p_'+Math.random().toString(36).substr(2,9);}
+
+  addPerson(name){
+    const people=this.loadPeople();
+    const person={id:this.genId(),name:name||'New Person',notes:[{content:'',indent:0,done:false,est:''}],createdAt:new Date().toISOString()};
+    people.push(person);
+    this.savePeople(people);
+    this.selectedPersonId=person.id;
+    this.renderPeopleView();
+  }
+
+  removePerson(id){
+    if(!confirm('Delete this person and their notes?')) return;
+    let people=this.loadPeople();
+    people=people.filter(p=>p.id!==id);
+    this.savePeople(people);
+    if(this.selectedPersonId===id) this.selectedPersonId=null;
+    this.renderPeopleView();
+  }
+
+  getPersonById(id){
+    return this.loadPeople().find(p=>p.id===id)||null;
+  }
+
+  // === People View ===
+  selectedPersonId = null;
+  _peopleSearch = '';
+
+  renderPeopleView(){
+    this.renderPeopleList();
+    this.renderPersonDetail();
+  }
+
+  renderPeopleList(){
+    const people=this.loadPeople();
+    const q=this._peopleSearch.toLowerCase();
+    const filtered=q?people.filter(p=>p.name.toLowerCase().includes(q)):people;
+    filtered.sort((a,b)=>a.name.localeCompare(b.name));
+    const el=document.getElementById('peopleList');
+    let h=`<div class="people-list-header"><h3>People (${people.length})</h3><button onclick="app.addPerson()">+ Add</button></div>`;
+    h+=`<div class="people-search"><input type="text" placeholder="Search..." value="${this.esc(this._peopleSearch)}" oninput="app._peopleSearch=this.value;app.renderPeopleList()"></div>`;
+    filtered.forEach(p=>{
+      const taskCount=this.countTasksForPerson(p.id);
+      const noteCount=(p.notes||[]).filter(n=>n.content).length;
+      const badge=taskCount>0?taskCount:(noteCount>0?noteCount+'n':'');
+      const act=p.id===this.selectedPersonId?' active':'';
+      h+=`<div class="person-item${act}" onclick="app.selectPerson('${p.id}')">
+        <span class="pi-name">${this.esc(p.name)}</span>
+        ${badge?`<span class="pi-badge">${badge}</span>`:''}
+      </div>`;
+    });
+    if(!filtered.length) h+='<div style="padding:12px 14px;color:var(--text3);font-size:13px;">No people yet</div>';
+    el.innerHTML=h;
+  }
+
+  selectPerson(id){
+    this.selectedPersonId=id;
+    this.renderPeopleView();
+  }
+
+  renderPersonDetail(){
+    const el=document.getElementById('personDetail');
+    if(!this.selectedPersonId){
+      el.innerHTML='<div class="person-detail-empty">Select a person to view details</div>';
+      return;
+    }
+    const person=this.getPersonById(this.selectedPersonId);
+    if(!person){
+      el.innerHTML='<div class="person-detail-empty">Person not found</div>';
+      return;
+    }
+
+    const notes=person.notes||[{content:'',indent:0,done:false,est:''}];
+    const labels=this.computeNumbering(notes);
+    const taggedTasks=this.getTasksForPerson(person.id);
+
+    let h=`<div class="person-header">
+      <h2 contenteditable="true" id="personName" spellcheck="false">${this.esc(person.name)}</h2>
+      <button class="person-del" onclick="app.removePerson('${person.id}')">Delete</button>
+    </div>`;
+
+    // Notes section
+    h+=`<div class="person-section">
+      <div class="person-section-title">Notes <span class="count">${notes.filter(n=>n.content).length}</span></div>
+      <div class="person-notes-editor"><div class="task-card"><div class="task-lines" id="personNotes">`;
+    notes.forEach((item,idx)=>{
+      const indentPx=item.indent*28;
+      const doneCls=item.done?' done':'';
+      const checkCls=item.done?' checked':'';
+      const label=labels[idx];
+      h+=`<div class="task-line${doneCls}" style="padding-left:${indentPx}px" data-idx="${idx}">`;
+      h+=`<div class="tl-inner">`;
+      h+=`<div class="tl-check${checkCls}" data-idx="${idx}">${item.done?'&#10003;':''}</div>`;
+      if(label) h+=`<span class="tl-num">${label}</span>`;
+      else h+=`<span class="tl-num" style="visibility:hidden">1.</span>`;
+      const ph=idx===0&&!item.content?'Write notes about this person...':'';
+      h+=`<div class="tl-edit pn-edit" contenteditable="true" data-idx="${idx}" data-placeholder="${ph}" spellcheck="false">${this.esc(item.content)}</div>`;
+      h+=`<button class="tl-del pn-del" data-idx="${idx}" title="Delete">&#215;</button>`;
+      h+=`</div></div>`;
+    });
+    h+=`</div></div></div></div>`;
+
+    // Tagged tasks section
+    h+=`<div class="person-section">
+      <div class="person-section-title">Tagged Tasks <span class="count">${taggedTasks.length}</span></div>
+      <div class="tagged-tasks" id="personTasks">`;
+    if(taggedTasks.length){
+      taggedTasks.forEach(t=>{
+        const checkCls=t.done?' checked':'';
+        const textCls=t.done?' done':'';
+        h+=`<div class="tt-item" onclick="app.goDate('${t.date}');app.switchTab('today')">
+          <span class="tt-check${checkCls}">${t.done?'&#10003;':''}</span>
+          <span class="tt-date">${t.date}</span>
+          <span class="tt-text${textCls}">${this.esc(t.content)}</span>
+        </div>`;
+      });
+    } else {
+      h+='<div class="tagged-tasks-empty">No tasks tagged to this person yet. Use @ on task lines to tag.</div>';
+    }
+    h+=`</div></div>`;
+
+    el.innerHTML=h;
+    this.bindPersonDetailEvents(person.id);
+  }
+
+  bindPersonDetailEvents(personId){
+    // Name editing
+    const nameEl=document.getElementById('personName');
+    if(nameEl){
+      nameEl.addEventListener('blur',()=>{
+        const people=this.loadPeople();
+        const p=people.find(p=>p.id===personId);
+        if(p){p.name=nameEl.textContent.trim()||'Unnamed';this.savePeople(people);this.renderPeopleList();}
+      });
+      nameEl.addEventListener('keydown',e=>{if(e.isComposing||e.keyCode===229) return;if(e.key==='Enter'){e.preventDefault();nameEl.blur();}});
+    }
+
+    // Notes line events (similar to task lines)
+    const notesEl=document.getElementById('personNotes');
+    if(!notesEl) return;
+
+    notesEl.querySelectorAll('.tl-check').forEach(el=>{
+      el.addEventListener('click',()=>{
+        const idx=parseInt(el.dataset.idx);
+        const people=this.loadPeople();
+        const p=people.find(p=>p.id===personId);
+        if(p&&p.notes&&p.notes[idx]){p.notes[idx].done=!p.notes[idx].done;this.savePeople(people);this.renderPersonDetail();}
+      });
+    });
+
+    notesEl.querySelectorAll('.pn-edit').forEach(el=>{
+      el.addEventListener('input',()=>{
+        clearTimeout(this._noteSaveTimer);
+        this._noteSaveTimer=setTimeout(()=>{
+          const idx=parseInt(el.dataset.idx);
+          const people=this.loadPeople();
+          const p=people.find(p=>p.id===personId);
+          if(p&&p.notes&&idx<p.notes.length){p.notes[idx].content=el.textContent;this.savePeople(people);}
+        },500);
+      });
+      el.addEventListener('keydown',e=>{
+        if(e.isComposing||e.keyCode===229) return;
+        const idx=parseInt(el.dataset.idx);
+        if(e.key==='Enter'&&!e.shiftKey){
+          e.preventDefault();
+          const people=this.loadPeople();
+          const p=people.find(pp=>pp.id===personId);
+          if(!p) return;
+          p.notes[idx].content=el.textContent;
+          const sel=window.getSelection(),range=sel.getRangeAt(0);
+          const full=el.textContent,off=range.startOffset;
+          p.notes[idx].content=full.substring(0,off);
+          p.notes.splice(idx+1,0,{content:full.substring(off),indent:p.notes[idx].indent,done:false,est:''});
+          this.savePeople(people);this.renderPersonDetail();
+          setTimeout(()=>{const newEl=document.querySelector(`#personNotes .pn-edit[data-idx="${idx+1}"]`);if(newEl){newEl.focus();this.setCursorStart(newEl);}},10);
+          return;
+        }
+        if(e.key==='Backspace'){
+          const sel=window.getSelection();
+          if(sel.isCollapsed&&sel.anchorOffset===0&&idx>0){
+            e.preventDefault();
+            const people=this.loadPeople();
+            const p=people.find(pp=>pp.id===personId);
+            if(!p) return;
+            const mergePoint=p.notes[idx-1].content.length;
+            p.notes[idx-1].content+=el.textContent;
+            p.notes.splice(idx,1);
+            this.savePeople(people);this.renderPersonDetail();
+            setTimeout(()=>{const prevEl=document.querySelector(`#personNotes .pn-edit[data-idx="${idx-1}"]`);if(prevEl){prevEl.focus();this.setCursorAt(prevEl,mergePoint);}},10);
+            return;
+          }
+        }
+        if(e.key==='Tab'){
+          e.preventDefault();
+          const people=this.loadPeople();
+          const p=people.find(pp=>pp.id===personId);
+          if(!p) return;
+          p.notes[idx].content=el.textContent;
+          if(e.shiftKey) p.notes[idx].indent=Math.max(0,p.notes[idx].indent-1);
+          else p.notes[idx].indent=Math.min(3,p.notes[idx].indent+1);
+          this.savePeople(people);
+          const curOff=window.getSelection().isCollapsed?window.getSelection().anchorOffset:0;
+          this.renderPersonDetail();
+          setTimeout(()=>{const newEl=document.querySelector(`#personNotes .pn-edit[data-idx="${idx}"]`);if(newEl){newEl.focus();this.setCursorAt(newEl,curOff);}},10);
+        }
+        if(e.key==='ArrowUp'&&idx>0){e.preventDefault();const prev=document.querySelector(`#personNotes .pn-edit[data-idx="${idx-1}"]`);if(prev){prev.focus();this.setCursorEnd(prev);}}
+        if(e.key==='ArrowDown'){const people=this.loadPeople();const p=people.find(pp=>pp.id===personId);if(p&&idx<p.notes.length-1){e.preventDefault();const next=document.querySelector(`#personNotes .pn-edit[data-idx="${idx+1}"]`);if(next){next.focus();this.setCursorEnd(next);}}}
+      });
+    });
+
+    notesEl.querySelectorAll('.pn-del').forEach(el=>{
+      el.addEventListener('click',()=>{
+        const idx=parseInt(el.dataset.idx);
+        const people=this.loadPeople();
+        const p=people.find(pp=>pp.id===personId);
+        if(!p) return;
+        if(p.notes.length<=1){p.notes[0]={content:'',indent:0,done:false,est:''};}
+        else{p.notes.splice(idx,1);}
+        this.savePeople(people);this.renderPersonDetail();
+      });
+    });
+  }
+
+  // === Person Tags on Tasks ===
+  countTasksForPerson(personId){
+    let count=0;
+    this.getAllDates().forEach(date=>{
+      const data=this.loadDay(date);
+      if(data.items) data.items.forEach(item=>{if(item.personId===personId&&!item.done) count++;});
+    });
+    return count;
+  }
+
+  getTasksForPerson(personId){
+    const tasks=[];
+    this.getAllDates().forEach(date=>{
+      const data=this.loadDay(date);
+      if(data.items) data.items.forEach(item=>{
+        if(item.personId===personId&&item.content) tasks.push({...item,date});
+      });
+    });
+    return tasks;
+  }
+
+  assignPerson(taskIdx,personId){
+    const items=this.getItems();
+    if(taskIdx>=items.length) return;
+    this.pushUndo();
+    items[taskIdx].personId=personId||'';
+    this.setItems(items);
+    this.renderTaskLines();this.renderSummary();
+  }
+
+  showPersonDropdown(taskIdx,btnEl){
+    document.querySelectorAll('.person-dropdown').forEach(d=>d.remove());
+    const people=this.loadPeople();
+    const items=this.getItems();
+    const currentPid=items[taskIdx]?items[taskIdx].personId:'';
+
+    const dd=document.createElement('div');
+    dd.className='person-dropdown';
+    dd.innerHTML=`<div class="pd-item pd-none" data-pid="">None</div>`+
+      people.sort((a,b)=>a.name.localeCompare(b.name)).map(p=>
+        `<div class="pd-item${p.id===currentPid?' selected':''}" data-pid="${p.id}">${this.esc(p.name)}</div>`
+      ).join('');
+
+    const rect=btnEl.getBoundingClientRect();
+    dd.style.position='fixed';
+    dd.style.top=(rect.bottom+4)+'px';
+    dd.style.left=Math.min(rect.left, window.innerWidth-170)+'px';
+    document.body.appendChild(dd);
+
+    dd.querySelectorAll('.pd-item').forEach(item=>{
+      item.addEventListener('click',()=>{
+        this.assignPerson(taskIdx, item.dataset.pid);
+        dd.remove();
+      });
+    });
+
+    const close=e=>{if(!dd.contains(e.target)&&e.target!==btnEl){dd.remove();document.removeEventListener('click',close);}};
+    setTimeout(()=>document.addEventListener('click',close),10);
   }
 
   esc(str){const d=document.createElement('div');d.textContent=str;return d.innerHTML;}
