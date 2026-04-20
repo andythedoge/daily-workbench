@@ -1770,24 +1770,30 @@ class WorkbenchApp {
       <button class="person-del" onclick="app.removePerson('${person.id}')">Delete</button>
     </div>`;
 
-    // Tagged tasks
+    // Tagged tasks - same format as Today task lines
     h+=`<div class="person-section">
       <div class="person-section-title">Tasks <span class="count">${taggedTasks.length}</span></div>
-      <div class="tagged-tasks" id="personTasks">`;
+      <div class="task-card" style="box-shadow:none;border:1px solid var(--border);padding:8px 12px;"><div class="task-lines" id="personTasks">`;
     if(taggedTasks.length){
-      taggedTasks.forEach(t=>{
+      let num=0;
+      taggedTasks.forEach((t,i)=>{
+        num++;
+        const doneCls=t.done?' done':'';
         const checkCls=t.done?' checked':'';
-        const textCls=t.done?' done':'';
-        h+=`<div class="tt-item" onclick="app.goDate('${t.date}');app.switchTab('today')">
-          <span class="tt-check${checkCls}">${t.done?'&#10003;':''}</span>
-          <span class="tt-date">${t.date}</span>
-          <span class="tt-text${textCls}">${this.esc(t.content)}</span>
-        </div>`;
+        const estCls=t.est?'has':'empty';
+        h+=`<div class="task-line${doneCls}" data-pt-idx="${i}">`;
+        h+=`<div class="tl-inner">`;
+        h+=`<div class="tl-check${checkCls}" data-date="${t.date}" data-item-idx="${t.itemIdx}">${t.done?'&#10003;':''}</div>`;
+        h+=`<span class="tl-num">${num}.</span>`;
+        h+=`<div class="tl-text-wrap"><span class="tl-edit" style="cursor:default">${this.esc(t.content)}</span>`;
+        h+=`<span class="tl-date" style="opacity:1;cursor:pointer" data-date="${t.date}" title="Go to ${t.date}">${t.date}</span></div>`;
+        if(t.est) h+=`<span class="tl-cyc has" style="cursor:default">${t.est}</span>`;
+        h+=`</div></div>`;
       });
     } else {
-      h+='<div class="tagged-tasks-empty">No tasks tagged yet. Use @ on task lines to tag.</div>';
+      h+='<div style="color:var(--text3);font-size:13px;padding:8px 0;">No tasks tagged yet. Use @ on task lines to tag.</div>';
     }
-    h+=`</div></div>`;
+    h+=`</div></div></div>`;
 
     el.innerHTML=h;
     this.bindPersonDetailEvents(person.id);
@@ -1803,6 +1809,20 @@ class WorkbenchApp {
       });
       nameEl.addEventListener('keydown',e=>{if(e.isComposing||e.keyCode===229) return;if(e.key==='Enter'){e.preventDefault();nameEl.blur();}});
     }
+    // Task checkboxes
+    document.querySelectorAll('#personTasks .tl-check[data-date]').forEach(el=>{
+      el.addEventListener('click',e=>{
+        e.stopPropagation();
+        this.togglePersonTask(el.dataset.date, parseInt(el.dataset.itemIdx));
+      });
+    });
+    // Date links -> jump to that day
+    document.querySelectorAll('#personTasks .tl-date[data-date]').forEach(el=>{
+      el.addEventListener('click',e=>{
+        e.stopPropagation();
+        this.goDate(el.dataset.date);this.switchTab('today');
+      });
+    });
   }
 
   // === Person Tags on Tasks ===
@@ -1819,11 +1839,21 @@ class WorkbenchApp {
     const tasks=[];
     this.getAllDates().forEach(date=>{
       const data=this.loadDay(date);
-      if(data.items) data.items.forEach(item=>{
-        if(item.personId===personId&&item.content) tasks.push({...item,date});
+      if(data.items) data.items.forEach((item,idx)=>{
+        if(item.personId===personId&&item.content) tasks.push({...item,date,itemIdx:idx});
       });
     });
     return tasks;
+  }
+
+  togglePersonTask(date,itemIdx){
+    const data=this.loadDay(date);
+    if(data.items&&data.items[itemIdx]){
+      data.items[itemIdx].done=!data.items[itemIdx].done;
+      this.saveDay(data);
+      this.renderPersonDetail();
+      if(date===this.currentDate){this.renderTaskLines();this.renderSummary();this.renderRecentDays();}
+    }
   }
 
   assignPerson(taskIdx,personId){
