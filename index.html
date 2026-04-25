@@ -169,26 +169,42 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh
 .tl-check.checked{background:var(--green);border-color:var(--green);color:white;}
 .tl-num{font-size:16px;color:var(--accent);font-weight:500;min-width:24px;margin-top:1px;flex-shrink:0;user-select:none;text-align:right;}
 .tl-text-wrap{flex:1;min-width:0;line-height:1.9;padding:2px 0;cursor:text;}
-.tl-edit{display:inline;outline:none;word-break:break-word;cursor:text;caret-color:var(--accent);min-width:40px;}
+.tl-edit{display:inline-block;outline:none;word-break:break-word;cursor:text;caret-color:var(--accent);min-width:60px;min-height:1.2em;}
 .tl-edit:empty::before{content:attr(data-placeholder);color:var(--text3);}
-.tl-cyc{font-size:12px;padding:3px 8px;border-radius:5px;flex-shrink:0;margin-top:3px;margin-left:auto;white-space:nowrap;font-weight:600;cursor:pointer;border:none;transition:all .12s;min-width:32px;text-align:center;}
-.tl-cyc.has{background:var(--accent-light);color:var(--accent);}
-.tl-cyc.empty{background:var(--bg);color:var(--text3);opacity:0;font-weight:400;font-size:11px;}
-.task-line:hover .tl-cyc.empty,.task-line.active .tl-cyc.empty{opacity:1;}
-.tl-cyc:hover{background:var(--accent);color:white;}
+.tl-inline-icons{display:inline-flex;align-items:center;gap:2px;vertical-align:middle;margin-left:4px;}
+.tl-icon-btn{display:inline-flex;align-items:center;gap:2px;font-size:13px;padding:1px 5px;border-radius:8px;cursor:pointer;border:1px solid transparent;transition:all .12s;color:var(--text3);opacity:0;white-space:nowrap;vertical-align:middle;position:relative;user-select:none;}
+.task-line:hover .tl-icon-btn,.task-line.active .tl-icon-btn{opacity:.5;}
+.tl-icon-btn:hover{opacity:1!important;background:var(--accent-light);border-color:var(--accent-light);color:var(--accent);}
+.tl-icon-btn.has{opacity:1!important;font-size:12px;}
+.tl-icon-btn.has b{font-size:11px;font-weight:600;margin-left:1px;}
+.tl-icon-est.has{color:var(--accent);}
+.tl-icon-est.has b{color:var(--accent);}
+.tl-icon-eta.has{color:#e25;}
+.tl-icon-eta.has b{color:#e25;}
+.tl-icon-eta.overdue{color:var(--red);}
+.tl-icon-eta.overdue b{color:var(--red);}
+.tl-icon-btn.ob-force-show,.tl-person.ob-force-show{opacity:1!important;}
+.tl-icon-btn input[type="date"]{position:absolute;opacity:0;width:0;height:0;top:0;left:0;pointer-events:none;}
+.tl-icon-btn input[type="date"]:focus{pointer-events:auto;opacity:0;}
+.est-dropdown{background:var(--card);border:1px solid var(--border);border-radius:8px;box-shadow:var(--shadow2);z-index:50;min-width:80px;padding:4px;overflow:hidden;}
+.est-dd-item{padding:6px 12px;border-radius:5px;font-size:12px;cursor:pointer;text-align:center;transition:background .1s;color:var(--text);}
+.est-dd-item:hover{background:var(--accent-light);color:var(--accent);}
+.est-dd-item.selected{background:var(--accent-light);color:var(--accent);font-weight:600;}
 
 /* Long-press to delete */
 .task-line{position:relative;}
 .tl-longpress-del{display:none;position:absolute;right:4px;top:50%;transform:translateY(-50%);background:var(--red);color:white;border:none;border-radius:6px;padding:4px 12px;font-size:12px;font-weight:600;cursor:pointer;z-index:2;box-shadow:0 2px 8px rgba(255,59,48,.3);}
 .tl-longpress-del:active{background:#d32f2f;}
 .task-line.show-del .tl-longpress-del{display:block;}
-.tl-inner{display:flex;align-items:flex-start;gap:6px;width:100%;position:relative;border-radius:6px;background:var(--card);}
+.tl-inner{display:flex;align-items:flex-start;gap:6px;width:100%;position:relative;border-radius:6px;background:var(--card);overflow:hidden;}
 .task-line:hover .tl-inner{background:var(--bg);}
-.tl-del{background:none;border:none;cursor:pointer;color:var(--red);font-size:20px;padding:2px 6px;margin-top:1px;flex-shrink:0;opacity:0;transition:opacity .15s;border-radius:4px;}
-.task-line:hover .tl-del{opacity:.45;}
-.tl-del:hover{opacity:1!important;background:#ffeeed;}
+.tl-bar{position:absolute;top:0;left:0;height:100%;background:linear-gradient(90deg,rgba(0,113,227,0.13),rgba(0,113,227,0.05));border-radius:6px;pointer-events:none;transition:width .3s;}
+.tl-bar.done{background:linear-gradient(90deg,rgba(52,199,89,0.15),rgba(52,199,89,0.05));}
+.tl-del{background:none;border:none;cursor:pointer;color:var(--text3);font-size:14px;padding:0 4px;flex-shrink:0;opacity:0;transition:all .15s;border-radius:4px;height:24px;display:flex;align-items:center;margin-top:4px;margin-left:auto;}
+.task-line:hover .tl-del{opacity:.4;}
+.tl-del:hover{opacity:1!important;color:var(--red);background:#ffeeed;}
 .task-line.empty-line{min-height:10px;}
-.tl-date{font-size:10px;color:var(--text3);margin-top:6px;flex-shrink:0;white-space:nowrap;opacity:0;transition:opacity .15s;}
+.tl-date{font-size:10px;color:var(--text3);flex-shrink:0;white-space:nowrap;opacity:0;transition:opacity .15s;margin-top:8px;margin-left:auto;}
 .task-line:hover .tl-date,.task-line.active .tl-date{opacity:1;}
 .import-icon{background:none;border:1px solid var(--border);border-radius:6px;padding:4px 8px;cursor:pointer;font-size:14px;color:var(--text2);transition:all .15s;line-height:1;}
 .import-icon:hover{background:var(--accent-light);color:var(--accent);border-color:var(--accent);}
@@ -400,6 +416,29 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh
 .person-dropdown .pd-item:hover{background:var(--accent-light);}
 .person-dropdown .pd-item.selected{background:var(--accent-light);color:var(--accent);font-weight:500;}
 .person-dropdown .pd-none{color:var(--red);font-style:italic;}
+
+/* === Onboarding === */
+.ob-overlay{position:fixed;top:0;left:0;right:0;bottom:0;z-index:300;pointer-events:auto;}
+.ob-mask{position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.35);}
+.ob-spotlight{position:fixed;border-radius:8px;box-shadow:0 0 0 9999px rgba(0,0,0,.4);z-index:301;pointer-events:none;transition:all .3s ease;}
+.ob-tip{position:fixed;z-index:302;background:var(--card);border-radius:10px;box-shadow:0 4px 20px rgba(0,0,0,.15);padding:14px 18px;width:260px;pointer-events:auto;}
+.ob-tip::after{content:'';position:absolute;width:10px;height:10px;background:var(--card);transform:rotate(45deg);}
+.ob-tip.pos-bottom::after{top:-5px;left:24px;}
+.ob-tip.pos-top::after{bottom:-5px;left:24px;}
+.ob-tip.pos-right::after{left:-5px;top:16px;}
+.ob-tip-text{font-size:13px;color:var(--text);line-height:1.6;margin-bottom:12px;}
+.ob-tip-text b{color:var(--accent);}
+.ob-tip-bar{display:flex;align-items:center;justify-content:space-between;}
+.ob-tip-step{font-size:11px;color:var(--text3);}
+.ob-tip-btns{display:flex;gap:6px;}
+.ob-tip-skip{background:none;border:none;color:var(--text3);font-size:11px;cursor:pointer;padding:4px 8px;font-family:var(--font);border-radius:4px;}
+.ob-tip-skip:hover{color:var(--text);background:var(--bg);}
+.ob-tip-next{background:var(--accent);color:white;border:none;border-radius:6px;padding:5px 14px;font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font);}
+.ob-tip-next:hover{opacity:.9;}
+@media(max-width:768px){
+  .ob-tip{width:220px;padding:12px 14px;}
+  .ob-tip-text{font-size:12px;}
+}
 </style>
 </head>
 <body>
@@ -424,10 +463,6 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh
   <button class="hamburger" onclick="app.toggleSidebar()">&#9776;</button>
   <h1>Daily Workbench</h1>
   <span id="syncStatus"></span>
-  <div class="user-info desktop-only" id="userInfo" style="display:none">
-    <span class="user-email" id="userEmail"></span>
-    <button class="logout-btn" onclick="doLogout()">Logout</button>
-  </div>
   <div class="date-nav">
     <button onclick="app.prevDay()">&#8592;</button>
     <button class="today-btn" onclick="app.goToday()">Today</button>
@@ -455,6 +490,17 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh
     <details class="sidebar-changelog">
       <summary>Changelog</summary>
       <div class="changelog-content">
+        <h4>v1.3.0 — 2026-04-25</h4>
+        <ul>
+          <li>New user onboarding: 4-step guided tour with spotlight highlights</li>
+          <li>Default data for new users: work hours, breaks, sample tasks, contacts</li>
+          <li>Parent checkbox cascades to all children</li>
+          <li>Inline icons: ⏲ time estimate, 📅 ETA date picker, @ assign people</li>
+          <li>Time estimate dropdown selector (15m~4h)</li>
+          <li>Task progress bars based on estimated time</li>
+          <li>Overdue ETA highlighting</li>
+          <li>Cleaner header UI</li>
+        </ul>
         <h4>v1.2.0 — 2026-04-20</h4>
         <ul>
           <li>People management: add/edit/delete contacts with per-person notes</li>
@@ -486,7 +532,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh
       </div>
     </details>
     <div class="sidebar-account" id="sidebarAccount"></div>
-    <div class="version">v1.2.0</div>
+    <div class="version">v1.3.0</div>
   </div>
 
   <div class="content">
@@ -653,13 +699,15 @@ async function authAction(){
 function skipAuth(){
   document.getElementById('authScreen').classList.add('hidden');
   sync.setStatus('offline');
+  document.getElementById('sidebarAccount').innerHTML=`
+    <button class="sa-logout" onclick="document.getElementById('authScreen').classList.remove('hidden');document.getElementById('sidebarAccount').innerHTML='';">Sign In</button>
+  `;
   app.render();
 }
 
 async function doLogout(){
   if(sb) await sb.auth.signOut();
   currentUser=null;
-  document.getElementById('userInfo').style.display='none';
   document.getElementById('sidebarAccount').innerHTML='';
   document.getElementById('authScreen').classList.remove('hidden');
   sync.setStatus('offline');
@@ -667,9 +715,6 @@ async function doLogout(){
 
 function onAuthSuccess(){
   document.getElementById('authScreen').classList.add('hidden');
-  // Desktop header
-  const ui=document.getElementById('userInfo');
-  if(ui){ui.style.display='flex';document.getElementById('userEmail').textContent=currentUser.email;}
   // Sidebar account
   document.getElementById('sidebarAccount').innerHTML=`
     <div class="sa-email">${currentUser.email}</div>
@@ -772,7 +817,14 @@ class WorkbenchApp {
   loadDay(date) {
     const raw = localStorage.getItem(this.storageKey(date));
     if (raw) return JSON.parse(raw);
-    return { date, startTime:'', endTime:'', breaks:[], taskText:'' };
+    return { date, startTime:'10:00', endTime:'18:00',
+      breaks:[{name:'Lunch',minutes:60,done:false},{name:'Walk',minutes:15,done:false}],
+      items:[
+        {content:'Review emails & messages',indent:0,done:false,est:'30m'},
+        {content:'Team standup',indent:0,done:false,est:'15m'},
+        {content:'',indent:0,done:false,est:''}
+      ]
+    };
   }
   saveDay(data) { localStorage.setItem(this.storageKey(data.date), JSON.stringify(data)); sync.queueSave(data.date, data); }
   getData() { return this.loadDay(this.currentDate); }
@@ -1200,9 +1252,21 @@ class WorkbenchApp {
     return n<=10?map[n]:n.toString();
   }
 
+  _parseEstMins(est){
+    if(!est) return 0;
+    const mH=est.match(/^(\d+(?:\.\d+)?)\s*h$/i);
+    const mM=est.match(/^(\d+)\s*m$/i);
+    if(mH) return parseFloat(mH[1])*60;
+    if(mM) return parseInt(mM[1]);
+    return 0;
+  }
+
   renderTaskLines(){
     const items=this.getItems();
     const labels=this.computeNumbering(items);
+    // Compute max est for bar chart
+    let maxEst=0;
+    items.forEach(item=>{const m=this._parseEstMins(item.est);if(m>maxEst)maxEst=m;});
     const el=document.getElementById('taskLines');
     let html='';
     items.forEach((item,idx)=>{
@@ -1211,20 +1275,27 @@ class WorkbenchApp {
       const checkCls=item.done?' checked':'';
       const label=labels[idx];
       const hasContent=item.content||item.est;
+      const estMins=this._parseEstMins(item.est);
+      const barPct=maxEst>0&&estMins>0?Math.round((estMins/maxEst)*100):0;
 
       html+=`<div class="task-line${doneCls}" style="padding-left:${indentPx}px" data-idx="${idx}">`;
       html+=`<button class="tl-longpress-del" data-idx="${idx}">Delete</button>`;
       html+=`<div class="tl-inner">`;
+      if(barPct>0) html+=`<div class="tl-bar${item.done?' done':''}" style="width:${barPct}%"></div>`;
       html+=`<div class="tl-check${checkCls}" data-idx="${idx}">${item.done?'&#10003;':''}</div>`;
       if(label) html+=`<span class="tl-num">${label}</span>`;
       else html+=`<span class="tl-num" style="visibility:hidden">1.</span>`;
       const ph=idx===0&&!hasContent?'Type your first task...':'';
       const personName=item.personId?((this.getPersonById(item.personId)||{}).name||''):'';
       const pTagCls=personName?'tl-person':'tl-person empty';
+      const etaVal=item.eta||'';
+      const isOverdue=etaVal&&etaVal<this.todayStr()&&!item.done;
       html+=`<div class="tl-text-wrap"><div class="tl-edit" contenteditable="true" data-idx="${idx}" data-placeholder="${ph}" spellcheck="false">${this.esc(item.content)}</div>`;
-      html+=`<span class="${pTagCls}" data-idx="${idx}" onclick="app.showPersonDropdown(${idx},this)">${personName?this.esc(personName):''}</span></div>`;
-      const estCls=item.est?'has':'empty';
-      html+=`<button class="tl-cyc ${estCls}" data-idx="${idx}" onclick="app.cycleEst(${idx})">${item.est||'15m'}</button>`;
+      html+=`<span class="tl-inline-icons">`;
+      html+=`<span class="${pTagCls}" data-idx="${idx}" onclick="app.showPersonDropdown(${idx},this)">${personName?this.esc(personName):''}</span>`;
+      html+=`<span class="tl-icon-btn tl-icon-est${item.est?' has':''}" data-idx="${idx}" onclick="app.cycleEst(${idx},this)" title="Set estimate">&#9202;${item.est?'<b>'+item.est+'</b>':''}</span>`;
+      html+=`<span class="tl-icon-btn tl-icon-eta${etaVal?(isOverdue?' has overdue':' has'):''}" data-idx="${idx}" onclick="app.pickEta(${idx},this)" title="Set ETA">&#128197;${etaVal?'<b>'+etaVal.slice(5)+'</b>':''}<input type="date" data-idx="${idx}" value="${etaVal}" tabindex="-1"></span>`;
+      html+=`</span></div>`;
       if(item.createdAt){html+=`<span class="tl-date">${this.fmtRelDate(item.createdAt)}</span>`;}
       html+=`<button class="tl-del" data-idx="${idx}" title="Delete line">&#215;</button>`;
       html+=`</div></div>`;
@@ -1476,16 +1547,39 @@ class WorkbenchApp {
   setCursorAt(el,offset){const r=document.createRange(),s=window.getSelection();const node=el.childNodes[0];if(node)r.setStart(node,Math.min(offset,node.length));else r.setStart(el,0);r.collapse(true);s.removeAllRanges();s.addRange(r);}
   selectAll(el){const r=document.createRange(),s=window.getSelection();r.selectNodeContents(el);s.removeAllRanges();s.addRange(r);}
 
-  cycleEst(idx){
-    const cycle=['15m','30m','1h','2h',''];
+  cycleEst(idx,btnEl){
+    document.querySelectorAll('.est-dropdown').forEach(d=>d.remove());
+    const options=['15m','30m','45m','1h','1.5h','2h','3h','4h',''];
     const items=this.getItems();
     if(idx>=items.length) return;
-    this.pushUndo();
     const cur=items[idx].est;
-    const ci=cycle.indexOf(cur);
-    items[idx].est=cycle[ci<0?0:(ci+1)%cycle.length];
-    this.setItems(items);
-    this.renderTaskLines();this.renderSummary();
+
+    const dd=document.createElement('div');
+    dd.className='est-dropdown';
+    options.forEach(opt=>{
+      const item=document.createElement('div');
+      item.className='est-dd-item'+(opt===cur?' selected':'');
+      item.textContent=opt||'None';
+      item.addEventListener('click',()=>{
+        this.pushUndo();
+        items[idx].est=opt;
+        this.setItems(items);
+        this.renderTaskLines();this.renderSummary();
+        dd.remove();
+      });
+      dd.appendChild(item);
+    });
+
+    const rect=btnEl.getBoundingClientRect();
+    dd.style.position='fixed';
+    dd.style.top=(rect.bottom+4)+'px';
+    dd.style.left=Math.min(rect.left,window.innerWidth-100)+'px';
+    document.body.appendChild(dd);
+
+    const cleanup=()=>{dd.remove();document.removeEventListener('click',close);document.querySelector('.content').removeEventListener('scroll',cleanup);};
+    const close=e=>{if(!dd.contains(e.target)&&e.target!==btnEl) cleanup();};
+    setTimeout(()=>document.addEventListener('click',close),10);
+    document.querySelector('.content').addEventListener('scroll',cleanup,{once:true});
   }
 
   fmtRelDate(iso){
@@ -1505,7 +1599,14 @@ class WorkbenchApp {
     this.pushUndo();
     const items=this.getItems();
     if(idx>=items.length)return;
-    items[idx].done=!items[idx].done;
+    const newState=!items[idx].done;
+    items[idx].done=newState;
+    // Cascade to children: all subsequent items with deeper indent
+    const parentIndent=items[idx].indent;
+    for(let i=idx+1;i<items.length;i++){
+      if(items[i].indent>parentIndent) items[i].done=newState;
+      else break;
+    }
     this.setItems(items);
     this.renderTaskLines(); this.renderSummary(); this.renderRecentDays();
   }
@@ -1667,7 +1768,14 @@ class WorkbenchApp {
   // === People Data ===
   loadPeople(){
     const raw=localStorage.getItem('workbench-people');
-    return raw?JSON.parse(raw):[];
+    if(raw) return JSON.parse(raw);
+    const defaults=[
+      {id:this.genId(),name:'Alice (PM)',notes:[{content:'Weekly sync every Monday',indent:0,done:false,est:''}],createdAt:new Date().toISOString()},
+      {id:this.genId(),name:'Bob (Dev)',notes:[{content:'',indent:0,done:false,est:''}],createdAt:new Date().toISOString()},
+      {id:this.genId(),name:'Carol (Design)',notes:[{content:'',indent:0,done:false,est:''}],createdAt:new Date().toISOString()}
+    ];
+    this.savePeople(defaults);
+    return defaults;
   }
   savePeople(people){
     localStorage.setItem('workbench-people',JSON.stringify(people));
@@ -1895,6 +2003,18 @@ class WorkbenchApp {
     setTimeout(()=>document.addEventListener('click',close),10);
   }
 
+  pickEta(idx,btnEl){
+    const input=btnEl.querySelector('input[type="date"]');
+    if(input){input.showPicker?input.showPicker():input.click();input.style.pointerEvents='auto';
+      const handler=()=>{
+        const items=this.getItems();
+        if(idx<items.length){this.pushUndo();items[idx].eta=input.value;this.setItems(items);this.renderTaskLines();this.renderSummary();}
+        input.removeEventListener('change',handler);
+      };
+      input.addEventListener('change',handler);
+    }
+  }
+
   esc(str){const d=document.createElement('div');d.textContent=str;return d.innerHTML;}
   linkify(text){return text.replace(/(https?:\/\/[^\s<]+)/g,'<a href="$1" target="_blank" rel="noopener">$1</a>');}
 }
@@ -1953,6 +2073,110 @@ const app=new WorkbenchApp();
     }
   }catch(e){console.warn('Session check failed:',e);}
 })();
+
+// === Onboarding Tour ===
+const onboarding = {
+  step: 0,
+  steps: [
+    { target:'.hc-row:first-child', pos:'bottom', text:'<b>Clock In</b> to start your work day' },
+    { target:'.task-card-header', pos:'bottom', text:'<b>Add tasks</b> here, press Enter to add more' },
+    { target:'#taskLines .task-line:nth-child(2)', pos:'bottom', text:'Each task has 3 quick actions:<br><b>@</b> assign people &nbsp; <b>⏲</b> time estimate &nbsp; <b>📅</b> due date', showIcons:true },
+    { target:'.tab-bar', pos:'bottom', text:'Switch to <b>People</b> to manage contacts' },
+  ],
+
+  _obKey(){ return 'workbench-onboarded'+(currentUser?'-'+currentUser.id:''); },
+  shouldShow(){ return !localStorage.getItem(this._obKey()); },
+
+  start(){
+    if(!this.shouldShow()) return;
+    this.step=0;
+    const overlay=document.createElement('div');
+    overlay.className='ob-overlay';overlay.id='obOverlay';
+    overlay.innerHTML='<div class="ob-mask"></div><div class="ob-spotlight" id="obSpot"></div><div class="ob-tip pos-bottom" id="obTip"></div>';
+    document.body.appendChild(overlay);
+    overlay.querySelector('.ob-mask').addEventListener('click',()=>this.finish());
+    this._show();
+  },
+
+  _show(){
+    const s=this.steps[this.step], total=this.steps.length;
+    // Reset previous step forced styles
+    document.querySelectorAll('.ob-force-show').forEach(e=>{e.classList.remove('ob-force-show');});
+
+    const el=document.querySelector(s.target);
+    if(!el){this.finish();return;}
+
+    // Force-show icons on target line
+    if(s.showIcons){
+      el.querySelectorAll('.tl-icon-btn, .tl-person').forEach(e=>e.classList.add('ob-force-show'));
+    }
+
+    // Scroll into view
+    const content=document.querySelector('.content');
+    const elTop=el.getBoundingClientRect().top;
+    if(elTop<0||elTop>window.innerHeight-100){
+      el.scrollIntoView({behavior:'smooth',block:'center'});
+      setTimeout(()=>this._position(el,s),350);
+    } else {
+      this._position(el,s);
+    }
+
+    const isLast=this.step===total-1;
+    const tip=document.getElementById('obTip');
+    tip.innerHTML=`
+      <div class="ob-tip-text">${s.text}</div>
+      <div class="ob-tip-bar">
+        <span class="ob-tip-step">${this.step+1} / ${total}</span>
+        <div class="ob-tip-btns">
+          ${isLast?'':'<button class="ob-tip-skip" onclick="onboarding.finish()">Skip</button>'}
+          <button class="ob-tip-next" onclick="onboarding.next()">${isLast?'Done!':'Next'}</button>
+        </div>
+      </div>`;
+  },
+
+  _position(el,s){
+    const r=el.getBoundingClientRect();
+    const spot=document.getElementById('obSpot');
+    const tip=document.getElementById('obTip');
+    const pad=6;
+    spot.style.top=(r.top-pad)+'px';
+    spot.style.left=(r.left-pad)+'px';
+    spot.style.width=(r.width+pad*2)+'px';
+    spot.style.height=(r.height+pad*2)+'px';
+
+    const isMobile=window.innerWidth<=768;
+    tip.className='ob-tip pos-'+s.pos;
+
+    if(s.pos==='bottom'){
+      tip.style.top=(r.bottom+12)+'px';
+      if(isMobile){tip.style.left='16px';tip.style.right='16px';tip.style.width='auto';}
+      else{tip.style.left=Math.max(16,Math.min(r.left,window.innerWidth-280))+'px';tip.style.right='auto';tip.style.width='';}
+    } else {
+      tip.style.top=Math.max(16,r.top)+'px';
+      tip.style.left=(r.right+12)+'px';
+      tip.style.right='auto';tip.style.width='';
+    }
+  },
+
+  next(){
+    this.step++;
+    if(this.step>=this.steps.length){this.finish();return;}
+    this._show();
+  },
+
+  finish(){
+    localStorage.setItem(this._obKey(),'1');
+    document.querySelectorAll('.ob-force-show').forEach(e=>e.classList.remove('ob-force-show'));
+    const o=document.getElementById('obOverlay');
+    if(o) o.remove();
+  }
+};
+
+// Trigger onboarding after auth screen is dismissed
+const _origSkipAuth = skipAuth;
+skipAuth = function(){ _origSkipAuth(); setTimeout(()=>onboarding.start(),500); };
+const _origOnAuthSuccess = onAuthSuccess;
+onAuthSuccess = function(){ _origOnAuthSuccess(); setTimeout(()=>onboarding.start(),800); };
 </script>
 </body>
 </html>
