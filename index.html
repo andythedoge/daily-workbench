@@ -200,9 +200,24 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh
 .task-line:hover .tl-inner{background:var(--bg);}
 .tl-bar{position:absolute;top:0;left:0;height:100%;background:linear-gradient(90deg,rgba(0,113,227,0.13),rgba(0,113,227,0.05));border-radius:6px;pointer-events:none;transition:width .3s;}
 .tl-bar.done{background:linear-gradient(90deg,rgba(52,199,89,0.15),rgba(52,199,89,0.05));}
-.tl-del{background:none;border:none;cursor:pointer;color:var(--text3);font-size:14px;padding:0 4px;flex-shrink:0;opacity:0;transition:all .15s;border-radius:4px;height:24px;display:flex;align-items:center;margin-top:4px;margin-left:auto;}
-.task-line:hover .tl-del{opacity:.4;}
+.tl-act-btns{display:flex;gap:2px;flex-shrink:0;margin-top:4px;margin-left:auto;align-items:center;}
+.tl-archive,.tl-del{background:none;border:none;cursor:pointer;color:var(--text3);padding:0 4px;flex-shrink:0;opacity:0;transition:all .15s;border-radius:4px;height:24px;display:flex;align-items:center;font-size:13px;}
+.task-line:hover .tl-archive,.task-line:hover .tl-del{opacity:.4;}
+.tl-archive:hover{opacity:1!important;color:var(--accent);background:var(--accent-light);}
 .tl-del:hover{opacity:1!important;color:var(--red);background:#ffeeed;}
+
+/* Archive panel */
+.archive-card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px 20px;margin-top:16px;}
+.archive-card summary{font-size:13px;font-weight:600;cursor:pointer;color:var(--text2);padding:4px 0;user-select:none;}
+.archive-card summary:hover{color:var(--accent);}
+.archive-card summary .archive-count{font-size:11px;font-weight:400;color:var(--text3);margin-left:4px;}
+.archive-list{margin-top:10px;}
+.archive-item{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:6px;font-size:14px;color:var(--text2);transition:background .1s;}
+.archive-item:hover{background:var(--bg);}
+.archive-item .ai-text{flex:1;text-decoration:line-through;color:var(--text3);}
+.archive-item .ai-date{font-size:10px;color:var(--text3);flex-shrink:0;}
+.archive-item .ai-restore{background:none;border:1px solid var(--border);border-radius:4px;padding:2px 8px;font-size:10px;color:var(--text3);cursor:pointer;flex-shrink:0;font-family:var(--font);}
+.archive-item .ai-restore:hover{color:var(--accent);border-color:var(--accent);background:var(--accent-light);}
 .task-line.empty-line{min-height:10px;}
 .tl-date{font-size:10px;color:var(--text3);flex-shrink:0;white-space:nowrap;opacity:0;transition:opacity .15s;margin-top:8px;margin-left:auto;}
 .task-line:hover .tl-date,.task-line.active .tl-date{opacity:1;}
@@ -490,6 +505,12 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh
     <details class="sidebar-changelog">
       <summary>Changelog</summary>
       <div class="changelog-content">
+        <h4>v1.3.1 — 2026-05-04</h4>
+        <ul>
+          <li>Archive tasks: hover to see 📦 button, archived tasks in collapsible panel with restore</li>
+          <li>Clock In/Out default to 10:00–18:00</li>
+          <li>Fix: onboarding key no longer appears in Recent Days</li>
+        </ul>
         <h4>v1.3.0 — 2026-04-25</h4>
         <ul>
           <li>New user onboarding: 4-step guided tour with spotlight highlights</li>
@@ -532,7 +553,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh
       </div>
     </details>
     <div class="sidebar-account" id="sidebarAccount"></div>
-    <div class="version">v1.3.0</div>
+    <div class="version">v1.3.1</div>
   </div>
 
   <div class="content">
@@ -604,6 +625,12 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh
         <kbd>Backspace</kbd> on empty = delete line &nbsp;|&nbsp;
         End with <kbd>0.5h</kbd> for estimate
       </div>
+    </div>
+    <div class="archive-card" id="archiveCard" style="display:none;">
+      <details>
+        <summary>Archived Tasks <span class="archive-count" id="archiveCount"></span></summary>
+        <div class="archive-list" id="archiveList"></div>
+      </details>
     </div>
     </div><!-- /today-view -->
 
@@ -766,7 +793,7 @@ class SyncManager {
     const dates=[];
     for(let i=0;i<localStorage.length;i++){
       const k=localStorage.key(i);
-      if(k.startsWith('workbench-')&&k!=='workbench-people') dates.push(k.replace('workbench-',''));
+      if(k.startsWith('workbench-')&&k!=='workbench-people'&&!k.startsWith('workbench-onboarded')) dates.push(k.replace('workbench-',''));
     }
     // Sync people data
     const peopleRaw=localStorage.getItem('workbench-people');
@@ -834,7 +861,7 @@ class WorkbenchApp {
     const dates=[];
     for(let i=0;i<localStorage.length;i++){
       const k=localStorage.key(i);
-      if(k.startsWith('workbench-')&&k!=='workbench-people') dates.push(k.replace('workbench-',''));
+      if(k.startsWith('workbench-')&&k!=='workbench-people'&&!k.startsWith('workbench-onboarded')) dates.push(k.replace('workbench-',''));
     }
     return dates.sort().reverse();
   }
@@ -926,6 +953,7 @@ class WorkbenchApp {
     this.renderTaskView();
     this.renderSummary();
     this.checkRollover();
+    this.renderArchive();
   }
 
   // === Nav ===
@@ -971,8 +999,8 @@ class WorkbenchApp {
   // === Time ===
   renderTimeCard() {
     const data=this.getData();
-    document.getElementById('startTime').value=data.startTime||'';
-    document.getElementById('endTime').value=data.endTime||'';
+    document.getElementById('startTime').value=data.startTime||'10:00';
+    document.getElementById('endTime').value=data.endTime||'18:00';
     this.renderBreakList();
     this.renderHero();
   }
@@ -1297,7 +1325,10 @@ class WorkbenchApp {
       html+=`<span class="tl-icon-btn tl-icon-eta${etaVal?(isOverdue?' has overdue':' has'):''}" data-idx="${idx}" onclick="app.pickEta(${idx},this)" title="Set ETA">&#128197;${etaVal?'<b>'+etaVal.slice(5)+'</b>':''}<input type="date" data-idx="${idx}" value="${etaVal}" tabindex="-1"></span>`;
       html+=`</span></div>`;
       if(item.createdAt){html+=`<span class="tl-date">${this.fmtRelDate(item.createdAt)}</span>`;}
-      html+=`<button class="tl-del" data-idx="${idx}" title="Delete line">&#215;</button>`;
+      html+=`<div class="tl-act-btns">`;
+      html+=`<button class="tl-archive" data-idx="${idx}" title="Archive">&#128230;</button>`;
+      html+=`<button class="tl-del" data-idx="${idx}" title="Delete">&#215;</button>`;
+      html+=`</div>`;
       html+=`</div></div>`;
     });
     el.innerHTML=html;
@@ -1317,6 +1348,9 @@ class WorkbenchApp {
       el.addEventListener('paste',e=>this.onContentPaste(e,el));
       el.addEventListener('focus',()=>{document.querySelectorAll('.task-line.active').forEach(l=>l.classList.remove('active'));el.closest('.task-line')?.classList.add('active');});
       el.addEventListener('blur',()=>{setTimeout(()=>{this.hideAtDropdown();const ae=document.activeElement;if(!ae||!ae.closest||ae.closest('.task-line')!==el.closest('.task-line'))el.closest('.task-line')?.classList.remove('active');},150);});
+    });
+    document.querySelectorAll('#taskLines .tl-archive').forEach(el=>{
+      el.addEventListener('click',()=>this.archiveLine(parseInt(el.dataset.idx)));
     });
     document.querySelectorAll('#taskLines .tl-del').forEach(el=>{
       el.addEventListener('click',()=>{
@@ -1609,6 +1643,60 @@ class WorkbenchApp {
     }
     this.setItems(items);
     this.renderTaskLines(); this.renderSummary(); this.renderRecentDays();
+  }
+
+  // === Archive ===
+  getArchive(){
+    const data=this.getData();
+    return data.archived||[];
+  }
+  setArchive(archived){
+    const data=this.getData();
+    data.archived=archived;
+    this.setData(data);
+  }
+  archiveLine(idx){
+    this.pushUndo();
+    const items=this.getItems();
+    if(idx>=items.length) return;
+    const item=items[idx];
+    if(!item.content) return;
+    const archived=this.getArchive();
+    archived.unshift({...item, archivedAt:new Date().toISOString()});
+    items.splice(idx,1);
+    if(items.length===0) items.push({content:'',indent:0,done:false,est:''});
+    this.setItems(items);
+    this.setArchive(archived);
+    this.renderTaskLines();this.renderSummary();this.renderRecentDays();this.renderArchive();
+  }
+  restoreFromArchive(aidx){
+    const archived=this.getArchive();
+    if(aidx>=archived.length) return;
+    this.pushUndo();
+    const item=archived.splice(aidx,1)[0];
+    delete item.archivedAt;
+    const items=this.getItems();
+    items.push(item);
+    this.setItems(items);
+    this.setArchive(archived);
+    this.renderTaskLines();this.renderSummary();this.renderRecentDays();this.renderArchive();
+  }
+  renderArchive(){
+    const archived=this.getArchive();
+    const card=document.getElementById('archiveCard');
+    const list=document.getElementById('archiveList');
+    const count=document.getElementById('archiveCount');
+    if(!archived.length){card.style.display='none';return;}
+    card.style.display='block';
+    count.textContent='('+archived.length+')';
+    list.innerHTML=archived.map((item,i)=>{
+      const dateStr=item.archivedAt?new Date(item.archivedAt).toLocaleDateString():'';
+      return `<div class="archive-item">
+        <span class="ai-text">${this.esc(item.content)}</span>
+        <span class="ai-date">${dateStr}</span>
+        <button class="ai-restore" onclick="app.restoreFromArchive(${i})">Restore</button>
+      </div>`;
+    }).join('');
   }
 
   addNewLine(){
