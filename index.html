@@ -147,9 +147,23 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh
 .progress-bar-fill{height:100%;background:var(--green);border-radius:3px;transition:width .3s;}
 .progress-pct{font-size:14px;font-weight:700;color:var(--green);min-width:40px;}
 
-/* Rollover */
-.rollover-banner{background:var(--accent-light);border:1px solid #b3d7f9;border-radius:10px;padding:10px 16px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;}
-.rollover-banner p{font-size:13px;color:var(--accent);}
+/* Unfinished Pool */
+.pool-card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px 20px;margin-bottom:16px;border:1px solid #b3d7f9;}
+.pool-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
+.pool-title{font-size:13px;font-weight:600;color:var(--accent);}
+.pool-count{font-size:11px;font-weight:400;color:var(--text3);}
+.pool-btns{display:flex;gap:6px;}
+.btn-sm{padding:4px 12px;font-size:11px;}
+.pool-list{max-height:260px;overflow-y:auto;display:flex;flex-direction:column;gap:2px;}
+.pool-item{display:flex;align-items:center;gap:8px;padding:5px 8px;border-radius:6px;font-size:13px;transition:background .1s;}
+.pool-item:hover{background:var(--bg);}
+.pool-item .pi-check{width:15px;height:15px;border-radius:3px;border:1.5px solid var(--border);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:9px;transition:all .12s;color:transparent;}
+.pool-item .pi-check:hover{border-color:var(--accent);background:var(--accent-light);}
+.pool-item .pi-check.checked{background:var(--accent);border-color:var(--accent);color:white;}
+.pool-item .pi-text{flex:1;color:var(--text);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.pool-item .pi-from{font-size:10px;color:var(--text3);flex-shrink:0;}
+.pool-item .pi-add{background:none;border:1px solid var(--border);border-radius:4px;padding:2px 8px;font-size:10px;color:var(--text3);cursor:pointer;flex-shrink:0;font-family:var(--font);}
+.pool-item .pi-add:hover{color:var(--accent);border-color:var(--accent);background:var(--accent-light);}
 
 /* === TASK CARD === */
 .task-card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:20px 24px;margin-bottom:20px;}
@@ -171,11 +185,10 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh
 .tl-text-wrap{flex:1;min-width:0;line-height:1.9;padding:2px 0;cursor:text;}
 .tl-edit{display:inline-block;outline:none;word-break:break-word;cursor:text;caret-color:var(--accent);min-width:60px;min-height:1.2em;}
 .tl-edit:empty::before{content:attr(data-placeholder);color:var(--text3);}
-.tl-inline-icons{display:inline-flex;align-items:center;gap:2px;vertical-align:middle;margin-left:4px;}
-.tl-icon-btn{display:inline-flex;align-items:center;gap:2px;font-size:13px;padding:1px 5px;border-radius:8px;cursor:pointer;border:1px solid transparent;transition:all .12s;color:var(--text3);opacity:0;white-space:nowrap;vertical-align:middle;position:relative;user-select:none;}
+.tl-icon-btn{display:flex;align-items:center;gap:2px;font-size:12px;padding:1px 5px;border-radius:6px;cursor:pointer;border:1px solid transparent;transition:all .12s;color:var(--text3);opacity:0;white-space:nowrap;position:relative;user-select:none;height:24px;}
 .task-line:hover .tl-icon-btn,.task-line.active .tl-icon-btn{opacity:.5;}
 .tl-icon-btn:hover{opacity:1!important;background:var(--accent-light);border-color:var(--accent-light);color:var(--accent);}
-.tl-icon-btn.has{opacity:1!important;font-size:12px;}
+.tl-icon-btn.has{opacity:1!important;}
 .tl-icon-btn.has b{font-size:11px;font-weight:600;margin-left:1px;}
 .tl-icon-est.has{color:var(--accent);}
 .tl-icon-est.has b{color:var(--accent);}
@@ -421,7 +434,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh
 .tagged-tasks-empty{color:var(--text3);font-size:13px;padding:8px 0;}
 
 /* === Person Tag on Tasks === */
-.tl-person{display:inline-block;font-size:10px;padding:1px 7px;border-radius:10px;background:#f0e8ff;color:#7c3aed;font-weight:500;cursor:pointer;white-space:nowrap;border:1px solid transparent;transition:all .12s;vertical-align:middle;margin-left:4px;max-width:80px;overflow:hidden;text-overflow:ellipsis;}
+.tl-person{display:flex;align-items:center;font-size:10px;padding:1px 7px;border-radius:10px;background:#f0e8ff;color:#7c3aed;font-weight:500;cursor:pointer;white-space:nowrap;border:1px solid transparent;transition:all .12s;max-width:80px;overflow:hidden;text-overflow:ellipsis;height:24px;}
 .tl-person:hover{border-color:#7c3aed;background:#e8dff8;}
 .tl-person.empty{opacity:0;background:var(--bg);color:var(--text3);border:1px dashed var(--border);font-weight:400;}
 .task-line:hover .tl-person.empty,.task-line.active .tl-person.empty{opacity:1;}
@@ -505,9 +518,11 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh
     <details class="sidebar-changelog">
       <summary>Changelog</summary>
       <div class="changelog-content">
-        <h4>v1.3.1 — 2026-05-04</h4>
+        <h4>v1.4.0 — 2026-05-04</h4>
         <ul>
-          <li>Archive tasks: hover to see 📦 button, archived tasks in collapsible panel with restore</li>
+          <li>Unfinished pool: import pending tasks from all previous days, single or batch</li>
+          <li>Task actions (@, ⏲, 📅, 📦, ✕) moved to right side for cleaner text area</li>
+          <li>Archive tasks with 📦 button, collapsible panel with restore</li>
           <li>Clock In/Out default to 10:00–18:00</li>
           <li>Fix: onboarding key no longer appears in Recent Days</li>
         </ul>
@@ -553,7 +568,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh
       </div>
     </details>
     <div class="sidebar-account" id="sidebarAccount"></div>
-    <div class="version">v1.3.1</div>
+    <div class="version">v1.4.0</div>
   </div>
 
   <div class="content">
@@ -602,10 +617,16 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh
     <!-- Summary -->
     <div class="daily-summary" id="dailySummary"></div>
 
-    <!-- Rollover -->
-    <div class="rollover-banner" id="rolloverBanner" style="display:none;">
-      <p id="rolloverText"></p>
-      <button class="btn btn-primary" onclick="app.rolloverFromPrev()">Import Unfinished</button>
+    <!-- Unfinished Pool -->
+    <div class="pool-card" id="poolCard" style="display:none;">
+      <div class="pool-header">
+        <span class="pool-title">Unfinished from previous days <span class="pool-count" id="poolCount"></span></span>
+        <div class="pool-btns">
+          <button class="btn btn-primary btn-sm" onclick="app.importAllPool()">Import All</button>
+          <button class="btn btn-outline btn-sm" onclick="app.dismissPool()">Dismiss</button>
+        </div>
+      </div>
+      <div class="pool-list" id="poolList"></div>
     </div>
 
     <!-- Tasks -->
@@ -1318,14 +1339,12 @@ class WorkbenchApp {
       const pTagCls=personName?'tl-person':'tl-person empty';
       const etaVal=item.eta||'';
       const isOverdue=etaVal&&etaVal<this.todayStr()&&!item.done;
-      html+=`<div class="tl-text-wrap"><div class="tl-edit" contenteditable="true" data-idx="${idx}" data-placeholder="${ph}" spellcheck="false">${this.esc(item.content)}</div>`;
-      html+=`<span class="tl-inline-icons">`;
+      html+=`<div class="tl-text-wrap"><div class="tl-edit" contenteditable="true" data-idx="${idx}" data-placeholder="${ph}" spellcheck="false">${this.esc(item.content)}</div></div>`;
+      html+=`<div class="tl-act-btns">`;
       html+=`<span class="${pTagCls}" data-idx="${idx}" onclick="app.showPersonDropdown(${idx},this)">${personName?this.esc(personName):''}</span>`;
       html+=`<span class="tl-icon-btn tl-icon-est${item.est?' has':''}" data-idx="${idx}" onclick="app.cycleEst(${idx},this)" title="Set estimate">&#9202;${item.est?'<b>'+item.est+'</b>':''}</span>`;
       html+=`<span class="tl-icon-btn tl-icon-eta${etaVal?(isOverdue?' has overdue':' has'):''}" data-idx="${idx}" onclick="app.pickEta(${idx},this)" title="Set ETA">&#128197;${etaVal?'<b>'+etaVal.slice(5)+'</b>':''}<input type="date" data-idx="${idx}" value="${etaVal}" tabindex="-1"></span>`;
-      html+=`</span></div>`;
       if(item.createdAt){html+=`<span class="tl-date">${this.fmtRelDate(item.createdAt)}</span>`;}
-      html+=`<div class="tl-act-btns">`;
       html+=`<button class="tl-archive" data-idx="${idx}" title="Archive">&#128230;</button>`;
       html+=`<button class="tl-del" data-idx="${idx}" title="Delete">&#215;</button>`;
       html+=`</div>`;
@@ -1787,38 +1806,91 @@ class WorkbenchApp {
   }
 
   // === Rollover ===
-  checkRollover(){
-    const data=this.getData();
-    const hasContent=data.items?data.items.some(i=>i.content||i.est):(data.taskText&&data.taskText.trim().length>0);
-    if(hasContent){document.getElementById('rolloverBanner').style.display='none';return;}
-    const prev=this.getPrevDateWithData();
-    if(!prev){document.getElementById('rolloverBanner').style.display='none';return;}
-    const prevData=this.loadDay(prev);
-    let unfinished=0;
-    if(prevData.items) unfinished=prevData.items.filter(i=>(i.content||i.est)&&!i.done).length;
-    else { const t=this.parseTaskText(prevData.taskText||''); unfinished=t.filter(t=>!t.done).length; }
-    if(unfinished>0){
-      document.getElementById('rolloverBanner').style.display='flex';
-      document.getElementById('rolloverText').textContent=`${prev} has ${unfinished} unfinished task(s)`;
-    } else {document.getElementById('rolloverBanner').style.display='none';}
+  // === Unfinished Pool ===
+  _poolDismissed=false;
+  _poolSelected=new Set();
+
+  getUnfinishedPool(){
+    const pool=[];
+    const dates=this.getAllDates();
+    const todayItems=this.getItems();
+    const todayTexts=new Set(todayItems.map(i=>i.content).filter(Boolean));
+    for(const date of dates){
+      if(date>=this.currentDate) continue;
+      const data=this.loadDay(date);
+      let items=data.items||[];
+      items.forEach((item,idx)=>{
+        if(item.content && !item.done && !todayTexts.has(item.content)){
+          pool.push({...item, fromDate:date, fromIdx:idx});
+        }
+      });
+    }
+    return pool;
   }
+
+  checkRollover(){
+    if(this._poolDismissed){document.getElementById('poolCard').style.display='none';return;}
+    const pool=this.getUnfinishedPool();
+    const card=document.getElementById('poolCard');
+    if(!pool.length){card.style.display='none';return;}
+    card.style.display='block';
+    document.getElementById('poolCount').textContent='('+pool.length+')';
+    this._poolSelected=new Set();
+    let html='';
+    pool.forEach((item,i)=>{
+      html+=`<div class="pool-item">
+        <div class="pi-check" data-pool-idx="${i}" onclick="app.togglePoolItem(${i},this)">&#10003;</div>
+        <span class="pi-text">${this.esc(item.content)}</span>
+        <span class="pi-from">${item.fromDate}</span>
+        <button class="pi-add" onclick="app.importPoolItem(${i})">+ Add</button>
+      </div>`;
+    });
+    document.getElementById('poolList').innerHTML=html;
+  }
+
+  togglePoolItem(idx,el){
+    if(this._poolSelected.has(idx)){this._poolSelected.delete(idx);el.classList.remove('checked');}
+    else{this._poolSelected.add(idx);el.classList.add('checked');}
+  }
+
+  importPoolItem(idx){
+    const pool=this.getUnfinishedPool();
+    if(idx>=pool.length) return;
+    this.pushUndo();
+    const item={...pool[idx]};
+    delete item.fromDate; delete item.fromIdx;
+    const items=this.getItems();
+    items.push(item);
+    this.setItems(items);
+    this.renderTaskLines();this.renderSummary();this.renderRecentDays();this.checkRollover();
+  }
+
+  importAllPool(){
+    const pool=this.getUnfinishedPool();
+    const selected=this._poolSelected.size>0?pool.filter((_,i)=>this._poolSelected.has(i)):pool;
+    if(!selected.length) return;
+    this.pushUndo();
+    const items=this.getItems();
+    selected.forEach(p=>{
+      const item={...p};
+      delete item.fromDate; delete item.fromIdx;
+      items.push(item);
+    });
+    this.setItems(items);
+    this._poolDismissed=true;
+    this.renderTaskLines();this.renderSummary();this.renderRecentDays();this.checkRollover();
+  }
+
+  dismissPool(){
+    this._poolDismissed=true;
+    document.getElementById('poolCard').style.display='none';
+  }
+
   getPrevDateWithData(){const dates=this.getAllDates();for(const d of dates){if(d<this.currentDate)return d;}return null;}
   rolloverFromPrev(){
-    const prev=this.getPrevDateWithData();
-    if(!prev){alert('No previous day data found.');return;}
-    const prevData=this.loadDay(prev);
-    let prevItems=[];
-    if(prevData.items){
-      prevItems=prevData.items.filter(i=>i.content||i.est).map(i=>({...i}));
-    } else {
-      prevItems=this.migrateToItems(prevData).filter(i=>i.content||i.est);
-    }
-    if(!prevItems.length){alert('No tasks to import.');return;}
-    this.pushUndo();
-    const data=this.getData();
-    if(!data.items) data.items=[];
-    data.items.push(...prevItems);
-    this.setData(data);this.render();
+    const pool=this.getUnfinishedPool();
+    if(!pool.length){alert('No unfinished tasks found.');return;}
+    this.importAllPool();
   }
 
 
@@ -2168,7 +2240,7 @@ const onboarding = {
   steps: [
     { target:'.hc-row:first-child', pos:'bottom', text:'<b>Clock In</b> to start your work day' },
     { target:'.task-card-header', pos:'bottom', text:'<b>Add tasks</b> here, press Enter to add more' },
-    { target:'#taskLines .task-line:nth-child(2)', pos:'bottom', text:'Each task has 3 quick actions:<br><b>@</b> assign people &nbsp; <b>⏲</b> time estimate &nbsp; <b>📅</b> due date', showIcons:true },
+    { target:'#taskLines .task-line:nth-child(2) .tl-act-btns', pos:'bottom', text:'Each task has quick actions:<br><b>@</b> assign people &nbsp; <b>⏲</b> time estimate &nbsp; <b>📅</b> due date', showIcons:true },
     { target:'.tab-bar', pos:'bottom', text:'Switch to <b>People</b> to manage contacts' },
   ],
 
