@@ -231,18 +231,6 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh
 .tl-archive:hover{opacity:1!important;color:var(--accent);background:var(--accent-light);border-color:var(--accent);}
 .tl-del:hover{opacity:1!important;color:var(--red);background:#ffeeed;border-color:var(--red);}
 
-/* Archive panel */
-.archive-card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px 20px;margin-top:16px;}
-.archive-card summary{font-size:13px;font-weight:600;cursor:pointer;color:var(--text2);padding:4px 0;user-select:none;}
-.archive-card summary:hover{color:var(--accent);}
-.archive-card summary .archive-count{font-size:11px;font-weight:400;color:var(--text3);margin-left:4px;}
-.archive-list{margin-top:10px;}
-.archive-item{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:6px;font-size:14px;color:var(--text2);transition:background .1s;}
-.archive-item:hover{background:var(--bg);}
-.archive-item .ai-text{flex:1;text-decoration:line-through;color:var(--text3);}
-.archive-item .ai-date{font-size:10px;color:var(--text3);flex-shrink:0;}
-.archive-item .ai-restore{background:none;border:1px solid var(--border);border-radius:4px;padding:2px 8px;font-size:10px;color:var(--text3);cursor:pointer;flex-shrink:0;font-family:var(--font);}
-.archive-item .ai-restore:hover{color:var(--accent);border-color:var(--accent);background:var(--accent-light);}
 .task-line.empty-line{min-height:10px;}
 .tl-date{font-size:10px;color:var(--text3);flex-shrink:0;white-space:nowrap;opacity:0;transition:opacity .15s;margin-top:8px;margin-left:auto;}
 .task-line:hover .tl-date,.task-line.active .tl-date{opacity:1;}
@@ -385,12 +373,58 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh
   .task-toolbar{gap:4px;}
   .task-toolbar button{font-size:10px;padding:4px 8px;}
   .task-help{display:none;}
+  /* Tab bar: compact on mobile */
+  .tab-bar{padding:3px;gap:2px;margin-bottom:10px;}
+  .tab-bar button{padding:6px 10px;font-size:12px;}
+
+  /* Task action buttons: hidden by default, show on active */
+  .tl-act-btns{gap:3px;flex-shrink:0;max-width:0;overflow:hidden;transition:max-width .2s;margin-left:4px;}
+  .task-line.active .tl-act-btns{max-width:300px;overflow:visible;}
+  .tl-icon-btn{opacity:0!important;min-height:32px;padding:3px 6px;font-size:10px;}
+  .tl-icon-btn.has{opacity:1!important;}
+  .task-line.active .tl-icon-btn{opacity:.6!important;}
+  .tl-archive,.tl-del{opacity:0!important;min-height:32px;padding:3px 6px;font-size:10px;}
+  .task-line.active .tl-archive,.task-line.active .tl-del{opacity:.5!important;}
+  .tl-date{opacity:0!important;}
+  .task-line.active .tl-date{opacity:1!important;}
+  .tl-person{min-height:32px;display:flex;align-items:center;}
+  .tl-person.empty{opacity:0!important;}
+  .task-line.active .tl-person.empty{opacity:.5!important;}
+
+  /* Summary chips: smaller on mobile */
+  .ss-chip{font-size:10px;padding:3px 8px;}
+  .summary-row{flex-wrap:wrap;gap:6px;}
+  .summary-label{font-size:10px;min-width:38px;}
+  .summary-chips{gap:4px;}
+
+  /* Unfinished Pool: larger touch targets */
+  .pool-card{padding:12px 14px;}
+  .pool-item{padding:8px 10px;min-height:44px;font-size:13px;}
+  .pool-item .pi-add{padding:6px 12px;font-size:12px;min-height:36px;}
+  .pool-item .pi-check{width:20px;height:20px;}
+  .pool-btns{gap:4px;}
+  .pool-btns .btn-sm{padding:6px 10px;font-size:11px;min-height:36px;}
+
   /* People mobile */
   .people-view{flex-direction:column!important;}
   .people-list{width:100%!important;max-height:200px;border-right:none!important;border-bottom:1px solid var(--border);}
   .person-detail{padding:16px 12px!important;}
   .person-header h2{font-size:18px!important;}
   .person-notes-editor .task-line{font-size:14px!important;}
+  .person-item{padding:10px 14px;min-height:44px;}
+  .person-header .person-del{min-height:36px;padding:6px 12px;}
+
+  /* Archived view: less padding on mobile */
+  .archived-view .av-group{padding:10px 12px;margin-bottom:8px;}
+  .archived-view .task-line .tl-icon-btn{opacity:.5!important;}
+  .archived-view .task-line .av-restore,.archived-view .task-line .av-del{opacity:.5!important;min-height:36px;padding:4px 8px;}
+
+  /* General touch improvements */
+  .btn{min-height:36px;display:inline-flex;align-items:center;justify-content:center;}
+  .break-item .brk-del{min-height:36px;min-width:36px;display:flex;align-items:center;justify-content:center;font-size:16px;opacity:.7;}
+  .break-item .brk-check{width:20px;height:20px;min-width:20px;}
+  .break-item{min-height:44px;}
+  .est-dd-item{padding:10px 12px;min-height:44px;display:flex;align-items:center;justify-content:center;}
 }
 
 /* === Tab Bar === */
@@ -691,12 +725,6 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh
         <kbd>Backspace</kbd> on empty = delete line &nbsp;|&nbsp;
         End with <kbd>0.5h</kbd> for estimate
       </div>
-    </div>
-    <div class="archive-card" id="archiveCard" style="display:none;">
-      <details>
-        <summary>Archived Tasks <span class="archive-count" id="archiveCount"></span></summary>
-        <div class="archive-list" id="archiveList"></div>
-      </details>
     </div>
     </div><!-- /today-view -->
 
@@ -1024,7 +1052,6 @@ class WorkbenchApp {
     this.renderTaskView();
     this.renderSummary();
     this.checkRollover();
-    this.renderArchive();
   }
 
   // === Nav ===
@@ -1778,7 +1805,7 @@ class WorkbenchApp {
     if(items.length===0) items.push({content:'',indent:0,done:false,est:''});
     this.setItems(items);
     this.setArchive(archived);
-    this.renderTaskLines();this.renderSummary();this.renderRecentDays();this.renderArchive();
+    this.renderTaskLines();this.renderSummary();this.renderRecentDays();
   }
   restoreFromArchive(aidx){
     const archived=this.getArchive();
@@ -1790,26 +1817,8 @@ class WorkbenchApp {
     items.push(item);
     this.setItems(items);
     this.setArchive(archived);
-    this.renderTaskLines();this.renderSummary();this.renderRecentDays();this.renderArchive();
+    this.renderTaskLines();this.renderSummary();this.renderRecentDays();
   }
-  renderArchive(){
-    const archived=this.getArchive();
-    const card=document.getElementById('archiveCard');
-    const list=document.getElementById('archiveList');
-    const count=document.getElementById('archiveCount');
-    if(!archived.length){card.style.display='none';return;}
-    card.style.display='block';
-    count.textContent='('+archived.length+')';
-    list.innerHTML=archived.map((item,i)=>{
-      const dateStr=item.archivedAt?new Date(item.archivedAt).toLocaleDateString():'';
-      return `<div class="archive-item">
-        <span class="ai-text">${this.esc(item.content)}</span>
-        <span class="ai-date">${dateStr}</span>
-        <button class="ai-restore" onclick="app.restoreFromArchive(${i})">Restore</button>
-      </div>`;
-    }).join('');
-  }
-
   renderArchivedView(){
     const el=document.getElementById('archivedView');
     const dates=this.getAllDates();
@@ -1962,7 +1971,6 @@ class WorkbenchApp {
     archived.splice(aidx,1);
     data.archived=archived;
     this.saveDay(data);
-    if(date===this.currentDate){this.renderArchive();}
     this.renderArchivedView();
   }
 
@@ -1976,7 +1984,7 @@ class WorkbenchApp {
     data.items.push(item);
     data.archived=archived;
     this.saveDay(data);
-    if(date===this.currentDate){this.renderTaskLines();this.renderSummary();this.renderRecentDays();this.renderArchive();}
+    if(date===this.currentDate){this.renderTaskLines();this.renderSummary();this.renderRecentDays();}
     this.renderArchivedView();
   }
 
@@ -2570,7 +2578,7 @@ class WorkbenchApp {
           if(!data.archived) data.archived=[];
           data.archived.unshift({...item,archivedAt:new Date().toISOString()});
           self.saveDay(data);
-          if(t.date===self.currentDate){self.renderTaskLines();self.renderSummary();self.renderRecentDays();self.renderArchive();}
+          if(t.date===self.currentDate){self.renderTaskLines();self.renderSummary();self.renderRecentDays();}
           self.renderPersonDetail();self.renderPeopleList();
         }
       });
