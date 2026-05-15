@@ -194,8 +194,8 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh
 .tl-check:hover{border-color:var(--green);background:var(--green-bg);}
 .tl-check.checked{background:var(--green);border-color:var(--green);color:white;}
 .tl-num{font-size:16px;color:var(--accent);font-weight:500;min-width:24px;margin-top:1px;flex-shrink:0;user-select:none;text-align:right;}
-.tl-text-wrap{flex:1;min-width:0;line-height:1.9;padding:2px 0;cursor:text;}
-.tl-edit{display:inline-block;outline:none;word-break:break-word;cursor:text;caret-color:var(--accent);min-width:60px;min-height:1.2em;}
+.tl-text-wrap{flex:1;min-width:0;line-height:1.9;padding:2px 0;cursor:text;display:flex;align-items:center;gap:6px;}
+.tl-edit{display:inline-block;outline:none;word-break:break-word;cursor:text;caret-color:var(--accent);min-width:60px;min-height:1.2em;flex:1;}
 .tl-edit:empty::before{content:attr(data-placeholder);color:var(--text3);}
 .tl-icon-btn{display:flex;align-items:center;gap:2px;font-size:11px;padding:1px 6px;border-radius:4px;cursor:pointer;border:1px solid var(--border);transition:all .12s;color:var(--text3);opacity:0;white-space:nowrap;position:relative;user-select:none;height:22px;background:none;font-family:var(--font);}
 .task-line:hover .tl-icon-btn,.task-line.active .tl-icon-btn{opacity:.5;}
@@ -489,8 +489,8 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh
 .tagged-tasks-empty{color:var(--text3);font-size:13px;padding:8px 0;}
 
 /* === Person Tag on Tasks === */
-.tl-person{display:flex;align-items:center;font-size:10px;padding:1px 7px;border-radius:10px;background:#f0e8ff;color:#7c3aed;font-weight:500;cursor:pointer;white-space:nowrap;border:1px solid transparent;transition:all .12s;max-width:80px;overflow:hidden;text-overflow:ellipsis;height:24px;}
-.tl-person:hover{border-color:#7c3aed;background:#e8dff8;}
+.tl-person{display:flex;align-items:center;font-size:10px;padding:1px 7px;border-radius:10px;background:#f0e8ff;color:#7c3aed;font-weight:500;cursor:pointer;white-space:nowrap;border:1px solid transparent;transition:all .12s;max-width:80px;overflow:hidden;text-overflow:ellipsis;height:20px;flex-shrink:0;}
+.tl-person:hover{border-color:currentColor;filter:brightness(0.95);}
 .tl-person.empty{opacity:0;background:var(--bg);color:var(--text3);border:1px dashed var(--border);font-weight:400;}
 .task-line:hover .tl-person.empty,.task-line.active .tl-person.empty{opacity:1;}
 .tl-person.empty::before{content:'@';}
@@ -553,7 +553,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh
     <input type="date" id="datePicker" onchange="app.goDate(this.value)">
   </div>
   <div class="header-actions">
-    <button onclick="app.rolloverFromPrev()">&#8617; Rollover</button>
+    <!-- Rollover removed: unfinished tasks auto carry over -->
     <button onclick="app.exportData()">Export</button>
     <button onclick="app.showImport()">Import</button>
   </div>
@@ -573,6 +573,16 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh
     <details class="sidebar-changelog">
       <summary>Changelog</summary>
       <div class="changelog-content">
+        <h4>v1.6.0 — 2026-05-15</h4>
+        <ul>
+          <li>Archive task now includes all subtasks (children) together</li>
+          <li>Unfinished tasks auto carry over to new days (no more manual import pool)</li>
+          <li>@ dropdown: always shows "+ New" option to add person inline</li>
+          <li>People view: adding a person auto-focuses name for editing</li>
+          <li>Person tags: differentiated colors per person (10-color palette)</li>
+          <li>Person tag moved inline next to task text instead of right-aligned</li>
+          <li>Removed redundant "Today" date label on task lines</li>
+        </ul>
         <h4>v1.5.0 — 2026-04-24</h4>
         <ul>
           <li>Fix Enter key splitting from wrong cursor position</li>
@@ -646,7 +656,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh
       </div>
     </details>
     <div class="sidebar-account" id="sidebarAccount"></div>
-    <div class="version">v1.5.0</div>
+    <div class="version">v1.6.0</div>
   </div>
 
   <div class="content">
@@ -943,14 +953,50 @@ class WorkbenchApp {
   loadDay(date) {
     const raw = localStorage.getItem(this.storageKey(date));
     if (raw) return JSON.parse(raw);
-    return { date, startTime:'10:00', endTime:'18:00',
+    // New day: auto carry over unfinished tasks from previous days
+    const carryOver=this._getCarryOverItems(date);
+    const items=carryOver.length>0 ? [...carryOver, {content:'',indent:0,done:false,est:''}]
+      : [{content:'',indent:0,done:false,est:''}];
+    const data={ date, startTime:'10:00', endTime:'18:00',
       breaks:[{name:'Lunch',minutes:60,done:false},{name:'Walk',minutes:15,done:false}],
-      items:[
-        {content:'Review emails & messages',indent:0,done:false,est:'30m'},
-        {content:'Team standup',indent:0,done:false,est:'15m'},
-        {content:'',indent:0,done:false,est:''}
-      ]
+      items
     };
+    // Persist immediately so carry-over only happens once
+    localStorage.setItem(this.storageKey(date), JSON.stringify(data));
+    sync.queueSave(date, data);
+    return data;
+  }
+
+  _getCarryOverItems(date){
+    const carried=[];
+    const seen=new Set();
+    const dates=[];
+    for(let i=0;i<localStorage.length;i++){
+      const k=localStorage.key(i);
+      if(k.startsWith('workbench-')&&k!=='workbench-people'&&!k.startsWith('workbench-onboarded')){
+        const d=k.replace('workbench-','');
+        if(d<date) dates.push(d);
+      }
+    }
+    dates.sort().reverse();
+    for(const d of dates){
+      const raw=localStorage.getItem(this.storageKey(d));
+      if(!raw) continue;
+      const data=JSON.parse(raw);
+      const items=data.items||[];
+      items.forEach(item=>{
+        if(item.content && !item.done){
+          const key=(item.content||'').trim()+'|'+item.indent;
+          if(!seen.has(key)){
+            seen.add(key);
+            const copy={...item};
+            delete copy.createdAt;
+            carried.push(copy);
+          }
+        }
+      });
+    }
+    return carried;
   }
   saveDay(data) { localStorage.setItem(this.storageKey(data.date), JSON.stringify(data)); sync.queueSave(data.date, data); }
   getData() { return this.loadDay(this.currentDate); }
@@ -1051,7 +1097,7 @@ class WorkbenchApp {
     this.renderTimeCard();
     this.renderTaskView();
     this.renderSummary();
-    this.checkRollover();
+    // Pool/rollover removed — unfinished tasks auto carry over to new days
   }
 
   // === Nav ===
@@ -1416,15 +1462,14 @@ class WorkbenchApp {
       const ph=idx===0&&!hasContent?'Type your first task...':'';
       const personName=item.personId?((this.getPersonById(item.personId)||{}).name||''):'';
       const pTagCls=personName?'tl-person':'tl-person empty';
+      const pColor=personName?this.getPersonColor(item.personId):null;
       const etaVal=item.eta||'';
       const isOverdue=etaVal&&etaVal<this.todayStr()&&!item.done;
-      html+=`<div class="tl-text-wrap"><div class="tl-edit" contenteditable="true" data-idx="${idx}" data-placeholder="${ph}" spellcheck="false">${this.esc(item.content)}</div></div>`;
+      html+=`<div class="tl-text-wrap"><div class="tl-edit" contenteditable="true" data-idx="${idx}" data-placeholder="${ph}" spellcheck="false">${this.esc(item.content)}</div><span class="${pTagCls}" data-idx="${idx}" onclick="app.showPersonDropdown(${idx},this)"${pColor?` style="background:${pColor.bg};color:${pColor.fg}"`:``}>${personName?this.esc(personName):''}</span></div>`;
       html+=`<div class="tl-act-btns">`;
-      html+=`<span class="${pTagCls}" data-idx="${idx}" onclick="app.showPersonDropdown(${idx},this)">${personName?this.esc(personName):''}</span>`;
       html+=`<span class="tl-icon-btn tl-icon-est${item.est?' has':''}" data-idx="${idx}" onclick="app.cycleEst(${idx},this)" title="Set estimate">${item.est?'<b>'+item.est+'</b>':'est'}</span>`;
       html+=`<span class="tl-icon-btn tl-icon-eta${etaVal?(isOverdue?' has overdue':' has'):''}" data-idx="${idx}" onclick="app.pickEta(${idx},this)" title="Set ETA">${etaVal?'<b>'+etaVal.slice(5)+'</b>':'ETA'}<input type="date" data-idx="${idx}" value="${etaVal}" tabindex="-1"></span>`;
       html+=`<button class="tl-icon-btn tl-pin" data-idx="${idx}" onclick="app.pinToTop(${idx})" title="Move to top">\u2191Top</button>`;
-      if(item.createdAt){html+=`<span class="tl-date">${this.fmtRelDate(item.createdAt)}</span>`;}
       html+=`<button class="tl-archive" data-idx="${idx}" title="Archive">Archive</button>`;
       html+=`<button class="tl-del" data-idx="${idx}" title="Delete">Del</button>`;
       html+=`</div>`;
@@ -1519,7 +1564,6 @@ class WorkbenchApp {
     const query=atMatch[1].toLowerCase();
     const atStart=pos-atMatch[0].length;
     const people=this.loadPeople().filter(p=>!query||p.name.toLowerCase().includes(query)).sort((a,b)=>a.name.localeCompare(b.name));
-    if(!people.length&&!query){this.hideAtDropdown();return;}
     this.showAtDropdown(el,parseInt(el.dataset.idx),atStart,pos,people);
   }
 
@@ -1552,7 +1596,12 @@ class WorkbenchApp {
     });
     // "Add new" option
     const query=el.textContent.substring(atStart+1,cursorPos).trim();
-    if(query){
+    if(!query){
+      const hint=document.createElement('div');
+      hint.style.cssText='padding:6px 10px;font-size:11px;color:var(--text3);';
+      hint.textContent='Type to search or add...';
+      dd.appendChild(hint);
+    } else {
       const addItem=document.createElement('div');
       addItem.className='pd-item';
       addItem.style.color='var(--accent)';
@@ -1798,10 +1847,15 @@ class WorkbenchApp {
     if(idx>=items.length) return;
     const item=items[idx];
     if(!item.content) return;
-    this._dayStats.archived++;
+    // Collect subtasks: all subsequent items with indent > parent indent
+    const parentIndent=item.indent;
+    let endIdx=idx+1;
+    while(endIdx<items.length && items[endIdx].indent>parentIndent) endIdx++;
+    const toArchive=items.splice(idx, endIdx-idx);
+    this._dayStats.archived+=toArchive.length;
     const archived=this.getArchive();
-    archived.unshift({...item, archivedAt:new Date().toISOString()});
-    items.splice(idx,1);
+    const now=new Date().toISOString();
+    toArchive.reverse().forEach(it=>archived.unshift({...it, archivedAt:now}));
     if(items.length===0) items.push({content:'',indent:0,done:false,est:''});
     this.setItems(items);
     this.setArchive(archived);
@@ -2252,6 +2306,7 @@ class WorkbenchApp {
   }
   savePeople(people){
     localStorage.setItem('workbench-people',JSON.stringify(people));
+    this._personColorCache={};
     this.syncPeople();
   }
   syncPeople(){
@@ -2275,6 +2330,29 @@ class WorkbenchApp {
 
   genId(){return 'p_'+Math.random().toString(36).substr(2,9);}
 
+  _personColors=[
+    {bg:'#f0e8ff',fg:'#7c3aed',border:'#7c3aed'}, // purple
+    {bg:'#e8f4fd',fg:'#0369a1',border:'#0369a1'}, // blue
+    {bg:'#fef3c7',fg:'#b45309',border:'#b45309'}, // amber
+    {bg:'#dcfce7',fg:'#15803d',border:'#15803d'}, // green
+    {bg:'#ffe4e6',fg:'#be123c',border:'#be123c'}, // rose
+    {bg:'#e0f2fe',fg:'#0284c7',border:'#0284c7'}, // sky
+    {bg:'#fce7f3',fg:'#a21caf',border:'#a21caf'}, // pink
+    {bg:'#f0fdf4',fg:'#166534',border:'#166534'}, // emerald
+    {bg:'#fff7ed',fg:'#c2410c',border:'#c2410c'}, // orange
+    {bg:'#f5f3ff',fg:'#6d28d9',border:'#6d28d9'}, // violet
+  ];
+  _personColorCache={};
+  getPersonColor(personId){
+    if(this._personColorCache[personId]) return this._personColorCache[personId];
+    const people=this.loadPeople();
+    const idx=people.findIndex(p=>p.id===personId);
+    const colorIdx=(idx>=0?idx:Math.abs(this._hashStr(personId)))%this._personColors.length;
+    this._personColorCache[personId]=this._personColors[colorIdx];
+    return this._personColorCache[personId];
+  }
+  _hashStr(s){let h=0;for(let i=0;i<s.length;i++){h=((h<<5)-h)+s.charCodeAt(i);h|=0;}return h;}
+
   addPerson(name){
     const people=this.loadPeople();
     const person={id:this.genId(),name:name||'New Person',notes:[{content:'',indent:0,done:false,est:''}],createdAt:new Date().toISOString()};
@@ -2282,6 +2360,10 @@ class WorkbenchApp {
     this.savePeople(people);
     this.selectedPersonId=person.id;
     this.renderPeopleView();
+    requestAnimationFrame(()=>{
+      const nameEl=document.getElementById('personName');
+      if(nameEl){nameEl.focus();const sel=window.getSelection();sel.selectAllChildren(nameEl);}
+    });
   }
 
   removePerson(id){
@@ -2574,9 +2656,13 @@ class WorkbenchApp {
         if(!t) return;
         const data=self.loadDay(t.date);
         if(data.items&&data.items[t.itemIdx]){
-          const item=data.items.splice(t.itemIdx,1)[0];
+          const parentIndent=data.items[t.itemIdx].indent;
+          let endIdx=t.itemIdx+1;
+          while(endIdx<data.items.length && data.items[endIdx].indent>parentIndent) endIdx++;
+          const toArchive=data.items.splice(t.itemIdx, endIdx-t.itemIdx);
           if(!data.archived) data.archived=[];
-          data.archived.unshift({...item,archivedAt:new Date().toISOString()});
+          const now=new Date().toISOString();
+          toArchive.reverse().forEach(it=>data.archived.unshift({...it,archivedAt:now}));
           self.saveDay(data);
           if(t.date===self.currentDate){self.renderTaskLines();self.renderSummary();self.renderRecentDays();}
           self.renderPersonDetail();self.renderPeopleList();
