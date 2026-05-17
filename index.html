@@ -852,8 +852,6 @@ function onAuthSuccess(){
   document.getElementById('authScreen').classList.add('hidden');
   // Set user-specific storage prefix
   app.setUserPrefix(currentUser.id);
-  // Migrate old unprefixed data to user-prefixed keys (one-time)
-  app._migrateOldData();
   // Sidebar account
   document.getElementById('sidebarAccount').innerHTML=`
     <div class="sa-email">${currentUser.email}</div>
@@ -970,25 +968,6 @@ class WorkbenchApp {
   _peopleKey(){ return `workbench-${this._userPrefix}people`; }
   setUserPrefix(userId){ this._userPrefix=userId?userId+'-':''; this._personColorCache={}; }
 
-  _migrateOldData(){
-    // One-time: move old unprefixed workbench-YYYY-MM-DD keys to user-prefixed keys
-    if(localStorage.getItem('workbench-migrated-'+this._userPrefix)) return;
-    const toMigrate=[];
-    for(let i=0;i<localStorage.length;i++){
-      const k=localStorage.key(i);
-      if(!k||!k.startsWith('workbench-')) continue;
-      const rest=k.substring(10); // after 'workbench-'
-      // Only migrate old-style keys (date or 'people'), skip already-prefixed user keys
-      if(/^\d{4}-\d{2}-\d{2}$/.test(rest)) toMigrate.push({old:k, newKey:this.storageKey(rest)});
-      else if(rest==='people') toMigrate.push({old:k, newKey:this._peopleKey()});
-    }
-    for(const {old,newKey} of toMigrate){
-      if(!localStorage.getItem(newKey)){
-        localStorage.setItem(newKey, localStorage.getItem(old));
-      }
-    }
-    localStorage.setItem('workbench-migrated-'+this._userPrefix,'1');
-  }
 
   loadDay(date) {
     const raw = localStorage.getItem(this.storageKey(date));
