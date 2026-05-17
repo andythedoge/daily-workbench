@@ -842,6 +842,7 @@ function skipAuth(){
 async function doLogout(){
   if(sb) await sb.auth.signOut();
   currentUser=null;
+  app.setUserPrefix('');
   document.getElementById('sidebarAccount').innerHTML='';
   document.getElementById('authScreen').classList.remove('hidden');
   sync.setStatus('offline');
@@ -849,13 +850,18 @@ async function doLogout(){
 
 function onAuthSuccess(){
   document.getElementById('authScreen').classList.add('hidden');
+  // Set user-specific storage prefix
+  app.setUserPrefix(currentUser.id);
+  // Migrate old unprefixed data to user-prefixed keys (one-time)
+  app._migrateOldData();
   // Sidebar account
   document.getElementById('sidebarAccount').innerHTML=`
     <div class="sa-email">${currentUser.email}</div>
     <button class="sa-logout" onclick="doLogout()">Logout</button>
   `;
   sync.setStatus('synced');
-  sync.pullDay(app.currentDate).then(()=>app.render());
+  // Pull all cloud data for this user, then render & push local
+  sync.pullAllForUser().then(()=>{app.render();sync.pushAll();});
   app.pullPeople();
 }
 
@@ -897,17 +903,13 @@ class SyncManager {
   async pushAll(){
     if(!sb||!currentUser) return;
     this.setStatus('syncing');
-    const dates=[];
-    for(let i=0;i<localStorage.length;i++){
-      const k=localStorage.key(i);
-      if(k.startsWith('workbench-')&&k!=='workbench-people'&&!k.startsWith('workbench-onboarded')) dates.push(k.replace('workbench-',''));
-    }
+    const dates=app.getAllDates();
     // Sync people data
-    const peopleRaw=localStorage.getItem('workbench-people');
+    const peopleRaw=localStorage.getItem(app._peopleKey());
     if(peopleRaw){try{await sb.from('workbench_days').upsert({id:'__people__',user_id:currentUser.id,data:JSON.parse(peopleRaw),updated_at:new Date().toISOString()},{onConflict:'id,user_id'});}catch(e){console.warn('Push people failed:',e);}}
     for(const date of dates){
       try{
-        const raw=localStorage.getItem('workbench-'+date);
+        const raw=localStorage.getItem(app.storageKey(date));
         if(raw){
           const data=JSON.parse(raw);
           await sb.from('workbench_days').upsert({id:date,user_id:currentUser.id,data,updated_at:new Date().toISOString()},{onConflict:'id,user_id'});
@@ -919,7 +921,22 @@ class SyncManager {
 
   async pullDay(date){
     const cloud=await this.load(date);
-    if(cloud) localStorage.setItem('workbench-'+date, JSON.stringify(cloud));
+    if(cloud) localStorage.setItem(app.storageKey(date), JSON.stringify(cloud));
+  }
+
+  async pullAllForUser(){
+    if(!sb||!currentUser) return;
+    try{
+      const {data,error}=await sb.from('workbench_days').select('id,data').eq('user_id',currentUser.id);
+      if(error||!data) return;
+      for(const row of data){
+        if(row.id==='__people__'){
+          localStorage.setItem(app._peopleKey(), JSON.stringify(row.data));
+        } else if(/^\d{4}-\d{2}-\d{2}$/.test(row.id)){
+          localStorage.setItem(app.storageKey(row.id), JSON.stringify(row.data));
+        }
+      }
+    }catch(e){console.warn('Pull all failed:',e);}
   }
 
   setStatus(s){
@@ -948,7 +965,30 @@ class WorkbenchApp {
 
   todayStr() { const d=new Date(); return this.fmtDate(d); }
   fmtDate(d) { return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
-  storageKey(date) { return `workbench-${date}`; }
+  _userPrefix='';
+  storageKey(date) { return `workbench-${this._userPrefix}${date}`; }
+  _peopleKey(){ return `workbench-${this._userPrefix}people`; }
+  setUserPrefix(userId){ this._userPrefix=userId?userId+'-':''; this._personColorCache={}; }
+
+  _migrateOldData(){
+    // One-time: move old unprefixed workbench-YYYY-MM-DD keys to user-prefixed keys
+    if(localStorage.getItem('workbench-migrated-'+this._userPrefix)) return;
+    const toMigrate=[];
+    for(let i=0;i<localStorage.length;i++){
+      const k=localStorage.key(i);
+      if(!k||!k.startsWith('workbench-')) continue;
+      const rest=k.substring(10); // after 'workbench-'
+      // Only migrate old-style keys (date or 'people'), skip already-prefixed user keys
+      if(/^\d{4}-\d{2}-\d{2}$/.test(rest)) toMigrate.push({old:k, newKey:this.storageKey(rest)});
+      else if(rest==='people') toMigrate.push({old:k, newKey:this._peopleKey()});
+    }
+    for(const {old,newKey} of toMigrate){
+      if(!localStorage.getItem(newKey)){
+        localStorage.setItem(newKey, localStorage.getItem(old));
+      }
+    }
+    localStorage.setItem('workbench-migrated-'+this._userPrefix,'1');
+  }
 
   loadDay(date) {
     const raw = localStorage.getItem(this.storageKey(date));
@@ -971,11 +1011,12 @@ class WorkbenchApp {
     const carried=[];
     const seen=new Set();
     const dates=[];
+    const prefix='workbench-'+this._userPrefix;
     for(let i=0;i<localStorage.length;i++){
       const k=localStorage.key(i);
-      if(k.startsWith('workbench-')&&k!=='workbench-people'&&!k.startsWith('workbench-onboarded')){
-        const d=k.replace('workbench-','');
-        if(d<date) dates.push(d);
+      if(k.startsWith(prefix)){
+        const d=k.substring(prefix.length);
+        if(/^\d{4}-\d{2}-\d{2}$/.test(d)&&d<date) dates.push(d);
       }
     }
     dates.sort().reverse();
@@ -1003,10 +1044,14 @@ class WorkbenchApp {
   setData(d) { this.saveDay(d); }
 
   getAllDates() {
+    const prefix='workbench-'+this._userPrefix;
     const dates=[];
     for(let i=0;i<localStorage.length;i++){
       const k=localStorage.key(i);
-      if(k.startsWith('workbench-')&&k!=='workbench-people'&&!k.startsWith('workbench-onboarded')) dates.push(k.replace('workbench-',''));
+      if(k.startsWith(prefix)){
+        const rest=k.substring(prefix.length);
+        if(rest!=='people'&&!rest.startsWith('onboarded')&&/^\d{4}-\d{2}-\d{2}$/.test(rest)) dates.push(rest);
+      }
     }
     return dates.sort().reverse();
   }
@@ -2272,7 +2317,7 @@ class WorkbenchApp {
   importData(){
     try{const text=document.getElementById('importText').value;const data=JSON.parse(text);let count=0;
     Object.keys(data).forEach(key=>{
-      if(key==='__people__'){localStorage.setItem('workbench-people',JSON.stringify(data[key]));return;}
+      if(key==='__people__'){localStorage.setItem(this._peopleKey(),JSON.stringify(data[key]));return;}
       if(data[key]&&data[key].date){this.saveDay(data[key]);count++;}
     });
     alert(`Imported ${count} day(s).`);this.hideImport();this.render();}catch(e){alert('Invalid JSON.');}
@@ -2294,7 +2339,7 @@ class WorkbenchApp {
 
   // === People Data ===
   loadPeople(){
-    const raw=localStorage.getItem('workbench-people');
+    const raw=localStorage.getItem(this._peopleKey());
     if(raw) return JSON.parse(raw);
     const defaults=[
       {id:this.genId(),name:'Alice (PM)',notes:[{content:'Weekly sync every Monday',indent:0,done:false,est:''}],createdAt:new Date().toISOString()},
@@ -2305,7 +2350,7 @@ class WorkbenchApp {
     return defaults;
   }
   savePeople(people){
-    localStorage.setItem('workbench-people',JSON.stringify(people));
+    localStorage.setItem(this._peopleKey(),JSON.stringify(people));
     this._personColorCache={};
     this.syncPeople();
   }
@@ -2324,7 +2369,7 @@ class WorkbenchApp {
     if(!sb||!currentUser) return;
     try{
       const {data}=await sb.from('workbench_days').select('data').eq('id','__people__').eq('user_id',currentUser.id).single();
-      if(data&&data.data) localStorage.setItem('workbench-people',JSON.stringify(data.data));
+      if(data&&data.data) localStorage.setItem(this._peopleKey(),JSON.stringify(data.data));
     }catch(e){}
   }
 
@@ -2961,8 +3006,8 @@ const app=new WorkbenchApp();
     const {data:{session}}=await sb.auth.getSession();
     if(session&&session.user){
       currentUser=session.user;
+      app.setUserPrefix(currentUser.id);
       onAuthSuccess();
-      sync.pushAll();
     }
   }catch(e){console.warn('Session check failed:',e);}
 })();
